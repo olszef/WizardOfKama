@@ -13,9 +13,27 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin GameText.spritefont
+#begin GameText24.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:TextureFormat=Compressed
-/build:GameText.spritefont
+/build:GameText24.spritefont
+
+#begin GameText36.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=Compressed
+/build:GameText36.spritefont
+
+#begin GameText56.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=Compressed
+/build:GameText56.spritefont
+
+#begin GameText70.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=Compressed
+/build:GameText70.spritefont
 

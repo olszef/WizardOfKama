@@ -58,6 +58,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CharacterClasses\CharacterSpell.cs" />
     <Compile Include="MonsterClasses\Zombie.cs" />
+    <Compile Include="Screens\ActionScreen.cs" />
+    <Compile Include="Screens\GameScreen.cs" />
+    <Compile Include="Screens\MainMenu.cs" />
+    <Compile Include="Screens\MenuComponent.cs" />
+    <Compile Include="Screens\MenuItem.cs" />
+    <Compile Include="Screens\MenuScreen.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">
@@ -67,7 +73,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\backgrounds\CreditsItem.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\backgrounds\forest1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\backgrounds\InstructionsItem.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\backgrounds\MainMenu.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\backgrounds\pauseDarkening.png">
