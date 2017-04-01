@@ -96,10 +96,14 @@ namespace TheWizardOfKama
         {
             spriteBatch.Begin();
             spriteBatch.Draw(image, imageRectangle, Color.White);
+            // Draw game title
             textSize = spriteFontLarge.MeasureString(titleText);
             spriteBatch.DrawString(spriteFontLarge, titleText, new Vector2(((float)screenWidth - textSize.X) / 2, 30), Color.Black);
             textSize = spriteFontBig.MeasureString(titleText);
             spriteBatch.DrawString(spriteFontBig, titleText, new Vector2(((float)screenWidth - textSize.X) / 2, 30), Color.WhiteSmoke);
+            // Draw MenuComponent name
+            textSize = spriteFontBig.MeasureString(name);
+            spriteBatch.DrawString(spriteFontBig, name, new Vector2((screenWidth - textSize.X) / 2, 100), Color.Gold);
             spriteBatch.End();
         }
 

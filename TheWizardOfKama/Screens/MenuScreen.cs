@@ -16,6 +16,7 @@ namespace TheWizardOfKama
         MenuComponent activeMenu;
         MainMenu mainMenu;
         MenuItem instructions;
+        MenuItem controls;
         MenuItem credits;
         List<MenuComponent> menuComponents;
 
@@ -23,6 +24,7 @@ namespace TheWizardOfKama
         {
             mainMenu = new MainMenu(game, content, spriteBatch, "backgrounds/MainMenu", "Main Menu");
             instructions = new MenuItem(game, content, spriteBatch, "backgrounds/InstructionsItem", "Instructions");
+            controls = new MenuItem(game, content, spriteBatch, "backgrounds/ControlsItem", "Controls");
             credits = new MenuItem(game, content, spriteBatch, "backgrounds/CreditsItem", "Credits");
             activeMenu = mainMenu;
             activeMenu.Show();
@@ -30,6 +32,7 @@ namespace TheWizardOfKama
             {
                 mainMenu,
                 instructions,
+                controls,
                 credits
             };
         }

@@ -117,16 +117,24 @@ namespace TheWizardOfKama
                                         menuScreen.ShowMenuComponent(2);
                                         break;
                                     case 3:
+                                        //Show Credits
+                                        menuScreen.ShowMenuComponent(3);
+                                        break;
+                                    case 4:
                                         this.Exit();
                                         break;
                                 }
                                 break;
                             case "Instructions":
-                                //Wróć do mainMenu
+                                //Back to Main menu
+                                menuScreen.ShowMenuComponent(0);
+                                break;
+                            case "Controls":
+                                //Back to Main menu
                                 menuScreen.ShowMenuComponent(0);
                                 break;
                             case "Credits":
-                                //Wróć do mainMenu
+                                //Back to Main menu
                                 menuScreen.ShowMenuComponent(0);
                                 break;
                         }

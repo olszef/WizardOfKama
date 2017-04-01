@@ -35,6 +35,7 @@ namespace TheWizardOfKama
             {
                 "Start new game",
                 "   Instructions",
+                "      Controls",
                 "       Credits",
                 "          Exit"
             };

@@ -43,9 +43,9 @@ namespace TheWizardOfKama
         {
             base.Draw(gameTime);
 
-            textSize = spriteFontBig.MeasureString(name);
+            //textSize = spriteFontBig.MeasureString(name);
             spriteBatch.Begin();
-            spriteBatch.DrawString(spriteFontBig, name, new Vector2((screenWidth - textSize.X) / 2, 100), Color.Gold);
+            //spriteBatch.DrawString(spriteFontBig, name, new Vector2((screenWidth - textSize.X) / 2, 100), Color.Gold);
             spriteBatch.DrawString(spriteFontSmall, textItem, new Vector2((screenWidth - itemSize.X) / 2, screenHeight - 100), itemColor);
             spriteBatch.End();
         }

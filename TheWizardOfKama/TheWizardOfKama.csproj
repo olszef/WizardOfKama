@@ -73,13 +73,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\backgrounds\CreditsItem.jpg">
+    <Content Include="Content\backgrounds\CreditsItem.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\backgrounds\forest1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\backgrounds\InstructionsItem.jpg">
+    <Content Include="Content\backgrounds\ControlsItem.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\backgrounds\InstructionsItem.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\backgrounds\MainMenu.jpg">
