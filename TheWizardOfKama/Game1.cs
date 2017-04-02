@@ -59,8 +59,6 @@ namespace TheWizardOfKama
             menuScreen = new MenuScreen(this, Content, spriteBatch, "menuScreen");
             actionScreen = new ActionScreen(this, Content, spriteBatch, "actionScreen");
             //endScreen = new EndScreen(this, Content, spriteBatch, "endScreen");
-            actionScreen.Initalize();
-            actionScreen.LoadContent();
             gameScreens = new List<GameScreen>
             {
                 menuScreen,

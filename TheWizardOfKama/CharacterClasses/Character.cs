@@ -34,7 +34,8 @@ namespace TheWizardOfKama
         Control control;
         float animationTimer = 0;
         float castingTimer = 0;
-        float abilityTimer = 0;
+        float shieldTimer = 0;
+        int shieldTimerMultiplier = 3;
         float manaRegenerationTimer = 0;
         const float manaRegenerationTime = 2000;
         const int manaRegenerated = 2;
@@ -78,7 +79,7 @@ namespace TheWizardOfKama
         public List<CharacterSpell> Spells { get { return spells; } }
         int screenWidth;
         int screenHeight;
-        Dictionary<string, int> spellCosts;
+        Dictionary<string, SpellParam> spellParams;
         //* Collision data *
         Circle charCircle;
         public Circle CharCircle { get { return charCircle; } }
@@ -88,11 +89,14 @@ namespace TheWizardOfKama
         public int Health { get { return health; } }
         int mana;
         public int Mana { get { return mana; } }
-        int level;
+        int level = 1;
         public int Level { get { return level; } }
-        const int baseMana = 100;
-        const int baseHealth = 150;
+        int experience = 0;
+        const int expToNextLvl = 1000;
+        int baseMana = 100;
+        const int baseHealth = 100;
         bool noMana = false;
+        bool specialAbilityLeft = true;
         //**************************************************************
 
         public Character(Texture2D wizardTexture, Texture2D castingTexture, Texture2D[] spells, int screenWidth, int screenHeight)
@@ -109,35 +113,33 @@ namespace TheWizardOfKama
             posYModifier = basicPosMofifier;
             health = baseHealth;
             mana = baseMana;
-            level = 1;
             this.spellsTextures = spells;
             this.screenWidth = screenWidth;
             this.screenHeight = screenHeight;
-            InitSpellCostDict();
+            InitSpellParamDict();
         }
 
-        private void InitSpellCostDict()
+        private void InitSpellParamDict()
         {
-            spellCosts = new Dictionary<string, int>
+            spellParams = new Dictionary<string, SpellParam>
             {
-                {"lighting", 5 },
-                {"water", 7 },
-                {"gravity", 3 },
-                {"shield", 20 },
-                {"special", 99 },
+                {"lighting", new SpellParam(5, 8) },
+                {"water", new SpellParam(7, 50) },
+                {"gravity", new SpellParam(3, 7) },
+                {"shield", new SpellParam(20, 0) },
+                {"special", new SpellParam(99, 9999) },
             };
         }
 
         public void UpdateWizard(GameTime gameTime)
         {
-            manaRegenerationTimer += gameTime.ElapsedGameTime.Milliseconds;
             if (moveState == MoveState.Hurt)
             {
                 GetHurt(gameTime);
             }
             if (moveState == MoveState.Dead)
             {
-                WizardsDeath(gameTime);
+                AnimateWizardsDeath(gameTime);
             }
             else
             {
@@ -145,14 +147,17 @@ namespace TheWizardOfKama
                 charCircle = new Circle(new Vector2((position.X + (charWidth / 2)), (position.Y + (charHeight / 2))), charWidth / 2);
                 
                 //regenerate mana
-                if (mana < baseMana && manaRegenerationTimer >= manaRegenerationTime)
+                if (mana < baseMana)
                 {
-                    manaRegenerationTimer = 0;
-                    mana += manaRegenerated;
-                    if (mana > baseMana)
-                        mana = baseMana;
-                }
-
+                    manaRegenerationTimer += gameTime.ElapsedGameTime.Milliseconds;
+                    if (manaRegenerationTimer >= manaRegenerationTime)
+                    {
+                        manaRegenerationTimer = 0;
+                        mana += manaRegenerated;
+                        if (mana > baseMana)
+                            mana = baseMana;
+                    }
+                } 
             }
             UpdateSpells(gameTime);
             isWizMonColl = false;
@@ -269,11 +274,11 @@ namespace TheWizardOfKama
                             // detect if spell is 'shield'
                             if (spell.Name == "shield")
                             {
-                                abilityTimer += gameTime.ElapsedGameTime.Milliseconds;
-                                if (abilityTimer > castingAnimationLength * 3)
+                                shieldTimer += gameTime.ElapsedGameTime.Milliseconds;
+                                if (shieldTimer > castingAnimationLength * shieldTimerMultiplier)
                                 {
                                     spells.Remove(spell);
-                                    abilityTimer = 0;
+                                    shieldTimer = 0;
                                     break;
                                 }
                                 else
@@ -343,15 +348,15 @@ namespace TheWizardOfKama
                         jumpMovement = -10;
                         break;
                     case KeysCombo.W:
-                        if (spellCosts["lighting"] <= mana)
+                        if (spellParams["lighting"].SpellCost <= mana)
                         {
                             currentFrame = castingStartFrame;
                             moveState = MoveState.Cast;
                             magicFrame = 110;
                             castStartXPosition = position.X + castWidth / 4 * 3;
                             castStartYPosition = position.Y - 100;
-                            mana -= spellCosts["lighting"];
-                            spells.Add(new CharacterSpell("lighting", 8, spellsTextures[0], castStartXPosition, castStartYPosition, gameTime, 0, 9, 4, 3, 30, 20));
+                            mana -= spellParams["lighting"].SpellCost;
+                            spells.Add(new CharacterSpell("lighting", spellParams["lighting"].SpellPower, spellsTextures[0], castStartXPosition, castStartYPosition, gameTime, 0, 9, 4, 3, 30, 20));
                         }
                         else
                         {
@@ -359,15 +364,15 @@ namespace TheWizardOfKama
                         }
                         break;
                     case KeysCombo.A:
-                        if (spellCosts["water"] <= mana)
+                        if (spellParams["water"].SpellCost <= mana)
                         {
                             currentFrame = castingStartFrame;
                             moveState = MoveState.Cast;
                             magicFrame = 110;
                             castStartXPosition = position.X + castWidth / 4 * 3;
                             castStartYPosition = position.Y;
-                            mana -= spellCosts["water"];
-                            spells.Add(new CharacterSpell("water", 50, spellsTextures[1], castStartXPosition, castStartYPosition, gameTime, 5, 12, 5, 5, 30, 20));
+                            mana -= spellParams["water"].SpellCost;
+                            spells.Add(new CharacterSpell("water", spellParams["water"].SpellPower, spellsTextures[1], castStartXPosition, castStartYPosition, gameTime, 5, 12, 5, 5, 30, 20));
                         }
                         else
                         {
@@ -375,15 +380,15 @@ namespace TheWizardOfKama
                         }
                         break;
                     case KeysCombo.S:
-                        if (spellCosts["gravity"] <= mana)
+                        if (spellParams["gravity"].SpellCost <= mana)
                         {
                             currentFrame = castingStartFrame;
                             moveState = MoveState.Cast;
                             magicFrame = 110;
                             castStartXPosition = position.X + castWidth / 4 * 3;
                             castStartYPosition = position.Y;
-                            mana -= spellCosts["gravity"];
-                            spells.Add(new CharacterSpell("gravity", 10, spellsTextures[2], castStartXPosition, castStartYPosition, gameTime, 4, 10, 5, 4, 30, 20));
+                            mana -= spellParams["gravity"].SpellCost;
+                            spells.Add(new CharacterSpell("gravity", spellParams["gravity"].SpellPower, spellsTextures[2], castStartXPosition, castStartYPosition, gameTime, 4, 10, 5, 4, 30, 20));
                         }
                         else
                         {
@@ -391,15 +396,15 @@ namespace TheWizardOfKama
                         }
                         break;
                     case KeysCombo.D:
-                        if (spellCosts["shield"] <= mana)
+                        if (spellParams["shield"].SpellCost <= mana)
                         {
                             currentFrame = castingStartFrame;
                             moveState = MoveState.Cast;
                             magicFrame = 110;
                             castStartXPosition = position.X;
                             castStartYPosition = position.Y;
-                            mana -= spellCosts["shield"];
-                            spells.Add(new CharacterSpell("shield", 0, spellsTextures[3], castStartXPosition, castStartYPosition, gameTime, 0, 0, 1, 1, 30, 0));
+                            mana -= spellParams["shield"].SpellCost;
+                            spells.Add(new CharacterSpell("shield", spellParams["shield"].SpellPower, spellsTextures[3], castStartXPosition, castStartYPosition, gameTime, 0, 0, 1, 1, 30, 0));
                         }
                         else
                         {
@@ -407,12 +412,13 @@ namespace TheWizardOfKama
                         }
                         break;
                     case KeysCombo.DownLeftX:
-                        if (spellCosts["special"] <= mana)
+                        if (spellParams["special"].SpellCost <= mana && specialAbilityLeft)
                         {
                             castStartXPosition = position.X;
                             castStartYPosition = position.Y;
-                            mana -= spellCosts["special"];
-                            spells.Add(new CharacterSpell("special", 99999, spellsTextures[4], castStartXPosition, castStartYPosition, gameTime, 0, 4, 1, 27, 80, 0));
+                            mana -= spellParams["special"].SpellCost;
+                            specialAbilityLeft = false;
+                            spells.Add(new CharacterSpell("special", spellParams["special"].SpellPower, spellsTextures[4], castStartXPosition, castStartYPosition, gameTime, 0, 4, 1, 27, 80, 0));
                         }
                         else
                         {
@@ -483,7 +489,7 @@ namespace TheWizardOfKama
             oldState = moveState;
         }
 
-        private void WizardsDeath (GameTime gameTime)
+        private void AnimateWizardsDeath (GameTime gameTime)
         {
             position.Y = startYPosition;
             if (oldState != MoveState.Dead)
@@ -543,6 +549,62 @@ namespace TheWizardOfKama
                     break;
             }
             spells[spellNumber].HandleCollsion(startFrame, endFrame, perFrame);
+        }
+
+        public bool GainExperience(int expPoints)
+        {
+            experience += expPoints;
+            if (experience >= level * expToNextLvl)
+            {
+                level += 1;
+                LevelUp();
+                return true;
+            }
+            else
+                return false;
+        }
+
+        private void LevelUp()
+        {
+            // Each level increase max Mana Points and get healed
+            baseMana += 5;
+            mana = baseMana;
+            health = baseHealth;
+
+            // Additional bonus depending on the level (only up to lvl 10)
+            switch(level)
+            {
+                case 2:
+                    spellParams["lighting"].SpellCost -= 1;
+                    break;
+                case 3:
+                    spellParams["water"].SpellCost -= 1;
+                    break;
+                case 4:
+                    spellParams["gravity"].SpellCost -= 1;
+                    break;
+                case 5:
+                    spellParams["shield"].SpellCost -= 5;
+                    break;
+                case 6:
+                    spellParams["lighting"].SpellPower += 2;
+                    break;
+                case 7:
+                    spellParams["water"].SpellPower += 2;
+                    break;
+                case 8:
+                    spellParams["gravity"].SpellPower += 2;
+                    break;
+                case 9:
+                    shieldTimerMultiplier += 1;
+                    break;
+                case 10:
+                    specialAbilityLeft = true;
+                    break;
+            }
+
+
+
         }
     }
 }

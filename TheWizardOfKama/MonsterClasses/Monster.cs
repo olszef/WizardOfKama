@@ -12,6 +12,8 @@ namespace TheWizardOfKama
 {
     abstract class Monster
     {
+        protected int experienceForPlayer;
+        public int ExpereinceForPlayer { get { return experienceForPlayer; } }
         protected int health;
         public int Health { get { return health; } }
         protected int attackPower;
@@ -39,13 +41,15 @@ namespace TheWizardOfKama
             currentFrame = 0;
         }
 
-        public void GetHurt(int hitPoints)
+        public bool GetHurt(int hitPoints)
         {
             health -= hitPoints;
             if (health <= 0)
             {
                 endOfLife = true;
             }
+
+            return endOfLife;
         }
     }
 }

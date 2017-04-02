@@ -39,6 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CharacterClasses\Spell.cs" />
+    <Compile Include="CharacterClasses\SpellParam.cs" />
     <Compile Include="Collisions\Circle.cs" />
     <Compile Include="Collisions\CollisionDetector.cs" />
     <Compile Include="LevelGenerator.cs" />
@@ -98,6 +99,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\character\kameha.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\character\LevelUpWaves.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\character\lighting.png">

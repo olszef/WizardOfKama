@@ -92,7 +92,7 @@ namespace TheWizardOfKama
             this.spellTexture = spellTexture;
             this.monsterEffTextures = monsterEffTextures;
             monsterList = new List<Monster>();
-            monsterNumber = random.Next(1,6);
+            monsterNumber = random.Next(3,6);
             this.monsterTextures = new Texture2D[monsterNumber];
             for (int i = 0; i < monsterNumber; i++)
             {
@@ -575,7 +575,7 @@ namespace TheWizardOfKama
                 spell.Draw(spriteBatch);
         }
 
-        public void HandleMonsterCollision(int mode, int hitPoints)
+        public int HandleMonsterCollision(int mode, int hitPoints)
         {
             /* Modes:
             0 - for spells different than shield
@@ -591,6 +591,11 @@ namespace TheWizardOfKama
                     isWizardShieldActive = true;
                     break;
             }
+
+            if (activeMonster.EndOfLife)
+                return activeMonster.ExpereinceForPlayer;
+            else
+                return 0;
         }
 
         public void HandleSpellCollision(int spellNumber)

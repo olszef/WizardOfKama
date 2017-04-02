@@ -41,6 +41,7 @@ namespace TheWizardOfKama
             currentFrame = idleStartFrame;
             health = 70;
             attackPower = 7;
+            experienceForPlayer = 700;
         }
 
         public int Move(GameTime gameTime, MonsterState landerState, Directions direction)

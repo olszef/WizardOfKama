@@ -28,11 +28,13 @@ namespace TheWizardOfKama
         private string gravity_file;
         private string shield_file;
         private string specAbility_file;
+        private string levelUpWaves_file;
         private Texture2D[] spells = new Texture2D[5];
         Texture2D[] monsterTextures = new Texture2D[3];
         Texture2D[] monsterEffTextures = new Texture2D[4];
         Texture2D landerSpellTexture;
         Texture2D pauseDarkening;
+        Texture2D levelUpWaves;
         string zombie_file;
         string zombieDeath_file;
         string birdy_file;
@@ -47,18 +49,39 @@ namespace TheWizardOfKama
         const float collisionPerFrame = 500;
         private bool paused = false;
         private bool pauseKeyDown = false;
-        SpriteFont font;
+        SpriteFont spriteFontNormal;
+        SpriteFont spriteFontBig;
+        int gainedExp;
+        bool levelUp = false;
+        float levelUpTextTimer = 0;
+        float levelUpAnimTimer = 0;
+        const float levelUpTextShow = 2000;
+        const float levelUpAnimationPerFrame = 40;
+        int currentFrame;
+        int effectWidth;
+        int effectHeight;
+        const int levelUpEndFrame = 6;
+        const int levelUpColumns = 7;
+        const int levelUpRows = 1;
+        Rectangle sourceRectangle;
+        Rectangle destinationRectangle;
 
         public ActionScreen(Game game, ContentManager content, SpriteBatch spriteBatch, string name) : base(game, content, spriteBatch, name)
         {
-
+            Initalize();
+            LoadContent();
+            currentFrame = 0;
+            effectWidth = levelUpWaves.Width / levelUpColumns;
+            effectHeight = levelUpWaves.Height / levelUpRows;
         }
 
-        public void LoadContent()
+        private void LoadContent()
         {
-            font = content.Load<SpriteFont>("GameText24");
+            spriteFontNormal = content.Load<SpriteFont>("GameText24");
+            spriteFontBig = content.Load<SpriteFont>("GameText56");
             background = content.Load<Texture2D>(background_file);
             pauseDarkening = content.Load<Texture2D>(pauseDarkening_file);
+            levelUpWaves = content.Load<Texture2D>(levelUpWaves_file);
             wizardTexture = content.Load<Texture2D>(wizard_file);
             castingTexture = content.Load<Texture2D>(casting_file);
             spells[0] = content.Load<Texture2D>(lighting_file);
@@ -81,7 +104,7 @@ namespace TheWizardOfKama
             InitCollPairs();
         }
 
-        public void Initalize()
+        private void Initalize()
         {
             background_file = "backgrounds/forest1";
             wizard_file = "character/WizardMoves";
@@ -99,6 +122,7 @@ namespace TheWizardOfKama
             landerExplosion_file = "monsters/landerExplosion";
             landerSpell_file = "monsters/landerAttack";
             pauseDarkening_file = "backgrounds/pauseDarkening";
+            levelUpWaves_file = "character/LevelUpWaves";
             monsterRespawn_file = "monsters/respawnAnim";
             levelGenerator = new LevelGenerator();
         }
@@ -112,7 +136,9 @@ namespace TheWizardOfKama
             {
                 wizard.UpdateWizard(gameTime);
                 monsterGenerator.ControlMonster(gameTime, wizard.Position);
-                checkCollisions(gameTime);
+                CheckCollisions(gameTime);
+                if (levelUp)
+                    AnimateLevelUp(gameTime);
                 base.Update(gameTime);
             }
         }
@@ -143,7 +169,7 @@ namespace TheWizardOfKama
             };
         }
 
-        private void checkCollisions(GameTime gameTime)
+        private void CheckCollisions(GameTime gameTime)
         {
             foreach (string collisionPair in collisions)
             {
@@ -268,7 +294,9 @@ namespace TheWizardOfKama
                                     if (wizard.Spells[spellNum].Name != "shield")
                                     {
                                         wizard.HandleSpellCollision(spellNum);
-                                        monsterGenerator.HandleMonsterCollision(0, wizard.Spells[spellNum].SpellPower);
+                                        gainedExp = monsterGenerator.HandleMonsterCollision(0, wizard.Spells[spellNum].SpellPower);
+                                        if (gainedExp > 0)
+                                            levelUp = wizard.GainExperience(gainedExp);
                                     }
                                     else
                                     {
@@ -301,6 +329,30 @@ namespace TheWizardOfKama
             }
         }
 
+        private void AnimateLevelUp(GameTime gameTime)
+        {
+            levelUpTextTimer += gameTime.ElapsedGameTime.Milliseconds;
+            levelUpAnimTimer += gameTime.ElapsedGameTime.Milliseconds;
+            if (levelUpAnimTimer >= levelUpAnimationPerFrame)
+            {
+                currentFrame++;
+                levelUpAnimTimer = 0;
+                if (currentFrame > levelUpEndFrame)
+                    currentFrame = 0;
+            }
+
+            int row = (int)((float)currentFrame / (float)levelUpColumns);
+            int column = currentFrame % levelUpColumns;
+            sourceRectangle = new Rectangle(effectWidth * column, effectHeight * row, effectWidth, effectHeight);
+            destinationRectangle = new Rectangle((int)wizard.Position.X + 30, (int)wizard.Position.Y - 200, effectWidth, effectHeight);
+            if (levelUpTextTimer >= levelUpTextShow)
+            {
+                levelUp = false;
+                levelUpTextTimer = 0;
+                currentFrame = 0;
+            }
+        }
+
         public override void Draw(GameTime gameTime)
         {
             spriteBatch.Begin();
@@ -313,15 +365,22 @@ namespace TheWizardOfKama
             monsterGenerator.DrawMonsterSpells(spriteBatch);
 
             spriteBatch.Begin();
-            spriteBatch.DrawString(font, "Wizard HP: " + wizard.Health, new Vector2(50, 50), Color.Red);
-            spriteBatch.DrawString(font, "Wizard MP: " + wizard.Mana, new Vector2(50, 100), Color.DeepSkyBlue);
-            spriteBatch.DrawString(font, "Character lvl: " + wizard.Level, new Vector2(300, 50), Color.Gold);
-            spriteBatch.DrawString(font, "Monsters left: " + monsterGenerator.MonstersLeft, new Vector2(screenWidth - 600, 50), Color.Silver);
-            spriteBatch.DrawString(font, "Stage " + levelGenerator.LevelNumber + "/3", new Vector2(screenWidth - 300, 50), Color.Silver);
+            spriteBatch.DrawString(spriteFontNormal, "Wizard HP: " + wizard.Health, new Vector2(50, 50), Color.Red);
+            spriteBatch.DrawString(spriteFontNormal, "Wizard MP: " + wizard.Mana, new Vector2(50, 100), Color.DeepSkyBlue);
+            spriteBatch.DrawString(spriteFontNormal, "Character lvl: " + wizard.Level, new Vector2(300, 50), Color.Gold);
+            spriteBatch.DrawString(spriteFontNormal, "Monsters left: " + monsterGenerator.MonstersLeft, new Vector2(screenWidth - 600, 50), Color.Silver);
+            spriteBatch.DrawString(spriteFontNormal, "Stage " + levelGenerator.LevelNumber + "/3", new Vector2(screenWidth - 300, 50), Color.Silver);
+            // Draw levelup string
+            if (levelUp)
+            {
+                spriteBatch.DrawString(spriteFontBig, "Level Up!", new Vector2(wizard.Position.X, wizard.Position.Y - 100), Color.Firebrick);
+                spriteBatch.Draw(levelUpWaves, destinationRectangle, sourceRectangle, Color.White);
+            }
+            // Draw pause screen
             if (paused)
             {
                 spriteBatch.Draw(pauseDarkening, new Rectangle(0, 0, screenWidth, screenHeight), Color.White);
-                spriteBatch.DrawString(font, "The game is paused. Click 'P' button to resume...", new Vector2(screenWidth / 2 - 300, screenHeight / 2), Color.GhostWhite);
+                spriteBatch.DrawString(spriteFontNormal, "The game is paused. Click 'P' button to resume...", new Vector2(screenWidth / 2 - 300, screenHeight / 2), Color.GhostWhite);
 
             }
             spriteBatch.End();

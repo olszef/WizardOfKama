@@ -36,6 +36,7 @@ namespace TheWizardOfKama
             currentFrame = flyStartFrame;
             health = 15;
             attackPower = 15;
+            experienceForPlayer = 300;
         }
 
         public int Move(GameTime gameTime, MonsterState birdyState)
