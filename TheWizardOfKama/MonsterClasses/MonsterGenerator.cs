@@ -179,11 +179,6 @@ namespace TheWizardOfKama
                 {
                     ControlLander(gameTime);
                 }
-                else
-                {
-                    //koniec poziomu
-
-                }
             }
             else if ((monsterState == MonsterState.Dead) && (monsterList.Count == 0))
             {

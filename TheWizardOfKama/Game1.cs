@@ -14,6 +14,7 @@ namespace TheWizardOfKama
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        SpriteFont spriteFontNormal;
         const int screenWidth = 1600;
         const int screenHeight = 900;
         GameScreen activeScreen;
@@ -23,6 +24,12 @@ namespace TheWizardOfKama
         List<GameScreen> gameScreens;
         KeyboardState keyboardState;
         KeyboardState oldKeyboardState;
+        bool paused = false;
+        bool pauseKeyDown = false;
+        bool exit = false;
+        bool escKeyDown = false;
+        Texture2D pauseDarkening;
+        string pauseDarkening_file;
 
         public Game1()
         {
@@ -42,6 +49,7 @@ namespace TheWizardOfKama
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            pauseDarkening_file = "backgrounds/pauseDarkening";
 
             base.Initialize();
         }
@@ -56,6 +64,8 @@ namespace TheWizardOfKama
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            spriteFontNormal = Content.Load<SpriteFont>("GameText24");
+            pauseDarkening = Content.Load<Texture2D>(pauseDarkening_file);
             menuScreen = new MenuScreen(this, Content, spriteBatch, "menuScreen");
             actionScreen = new ActionScreen(this, Content, spriteBatch, "actionScreen");
             //endScreen = new EndScreen(this, Content, spriteBatch, "endScreen");
@@ -86,8 +96,8 @@ namespace TheWizardOfKama
         protected override void Update(GameTime gameTime)
         {
             keyboardState = Keyboard.GetState();
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            /*if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+                Exit();*/
 
             // TODO: Add your update logic here
             switch (activeScreen.Name)
@@ -137,18 +147,29 @@ namespace TheWizardOfKama
                                 break;
                         }
                     }
-                    //menuScreen.Update(gameTime);
+                    activeScreen.Update(gameTime);
                     break;
                 case "actionScreen":
                     //TODO:
-                    //activeScreen.Update(gameTime);
+                    checkPauseKeys(keyboardState);
+                    if (!paused && !exit)
+                        activeScreen.Update(gameTime);
+                    else
+                    {
+                        if (exit)
+                        {
+                            if (CheckKey(Keys.Y))
+                                Exit();
+                            else if (CheckKey(Keys.N))
+                                exit = false;
+                        }
+                    }
                     break;
                 /*case "endScreen":
                     //TODO:
-                    endScreen.Update(gameTime);
+                    activeScreen.Update(gameTime);
                     break;*/
             }
-            activeScreen.Update(gameTime);
             oldKeyboardState = keyboardState;
             base.Update(gameTime);
         }
@@ -165,9 +186,21 @@ namespace TheWizardOfKama
             foreach (GameScreen screen in gameScreens)
             {
                 if (screen.Enabled)
+                {
                     screen.Draw(gameTime);
+                    // Draw pause screen
+                    if (paused || exit)
+                    {
+                        spriteBatch.Begin();
+                        spriteBatch.Draw(pauseDarkening, new Rectangle(0, 0, screenWidth, screenHeight), Color.White);
+                        if (exit)
+                            spriteBatch.DrawString(spriteFontNormal, "Do you really want to exit the game? Click (Y)es or (N)o ...", new Vector2(screenWidth / 2 - 400, screenHeight / 2), Color.GhostWhite);
+                        else
+                            spriteBatch.DrawString(spriteFontNormal, "The game is paused. Click 'P' button to resume...", new Vector2(screenWidth / 2 - 300, screenHeight / 2), Color.GhostWhite);
+                        spriteBatch.End();
+                    }
+                }
             }
-
             base.Draw(gameTime);
         }
 
@@ -175,6 +208,25 @@ namespace TheWizardOfKama
         {
             return keyboardState.IsKeyUp(theKey) &&
                 oldKeyboardState.IsKeyDown(theKey);
+        }
+
+        private void checkPauseKeys(KeyboardState keyboardState)
+        {
+            // If key was not down before, but is down now, we toggle the
+            // pause setting
+            if (CheckKey(Keys.P))
+            {
+                if (!paused)
+                    paused = true;
+                else
+                    paused = false;
+            }
+
+            if (CheckKey(Keys.Escape))
+            {
+                if (!exit)
+                    exit = true;
+            }
         }
     }
 }

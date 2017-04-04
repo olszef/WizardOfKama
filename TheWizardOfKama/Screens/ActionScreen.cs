@@ -13,7 +13,6 @@ namespace TheWizardOfKama
 {
     class ActionScreen : GameScreen
     {
-        KeyboardState keyboardState;
         List<Texture2D> backgrounds = new List<Texture2D>();
         Texture2D currentBackground;
         string backgroundForest_file;
@@ -40,7 +39,6 @@ namespace TheWizardOfKama
         Texture2D[] monsterEffTextures = new Texture2D[4];
         Texture2D[] healthBarTexture = new Texture2D[2];
         Texture2D landerSpellTexture;
-        Texture2D pauseDarkening;
         Texture2D levelUpWaves;
         Texture2D endGate;
         string zombie_file;
@@ -50,13 +48,10 @@ namespace TheWizardOfKama
         string lander_file;
         string landerSpell_file;
         string landerExplosion_file;
-        string pauseDarkening_file;
         string monsterRespawn_file;
         string[] collisions;
         float actionTimer = 0;
         const float collisionPerFrame = 500;
-        private bool paused = false;
-        private bool pauseKeyDown = false;
         SpriteFont spriteFontNormal;
         SpriteFont spriteFontBig;
         int gainedExp;
@@ -108,7 +103,6 @@ namespace TheWizardOfKama
             backgrounds.Add(content.Load<Texture2D>(backgroundWindmill_file));
             backgrounds.Add(content.Load<Texture2D>(backgroundWinter_file));
             backgrounds.Add(content.Load<Texture2D>(backgroundCastle_file));
-            pauseDarkening = content.Load<Texture2D>(pauseDarkening_file);
             levelUpWaves = content.Load<Texture2D>(levelUpWaves_file);
             endGate = content.Load<Texture2D>(endGate_file);
             wizardTexture = content.Load<Texture2D>(wizard_file);
@@ -154,7 +148,6 @@ namespace TheWizardOfKama
             lander_file = "monsters/lander";
             landerExplosion_file = "monsters/landerExplosion";
             landerSpell_file = "monsters/landerAttack";
-            pauseDarkening_file = "backgrounds/pauseDarkening";
             levelUpWaves_file = "character/LevelUpWaves";
             monsterRespawn_file = "monsters/respawnAnim";
             endGate_file = "other/EndGate";
@@ -163,49 +156,28 @@ namespace TheWizardOfKama
 
         public override void Update(GameTime gameTime)
         {
-            keyboardState = Keyboard.GetState();
-            checkPauseKey(keyboardState);
+            base.Update(gameTime);
+            wizard.UpdateWizard(gameTime);
 
-            if (!paused)
+            if (isLvlFinished)
             {
-                wizard.UpdateWizard(gameTime);
-
-                if (isLvlFinished)
+                if (levelGenerator.LevelNumber != LevelGenerator.FinalLevel)
                 {
-                    if (levelGenerator.LevelNumber != LevelGenerator.FinalLevel)
+                    ShowGateToNextLvl(gameTime);
+                    if (wizard.Position.X > gateXPosition && wizard.Position.Y > gateYPosition)
                     {
-                        ShowGateToNextLvl(gameTime);
-                        if (wizard.Position.X > gateXPosition && wizard.Position.Y > gateYPosition)
-                        {
-                            LoadNextLevel();
-                        }
+                        LoadNextLevel();
                     }
-                    else
-                    {
-                        //TODO: show end screen
-                    }                 
                 }
-                isLvlFinished = monsterGenerator.ControlMonster(gameTime, wizard.Position);
-                CheckCollisions(gameTime);
-                if (levelUp)
-                    AnimateLevelUp(gameTime);
-                base.Update(gameTime);
-            }
-        }
-
-        private void checkPauseKey(KeyboardState keyboardState)
-        {
-            bool pauseKeyDownThisFrame = (keyboardState.IsKeyDown(Keys.P));
-            // If key was not down before, but is down now, we toggle the
-            // pause setting
-            if (!pauseKeyDown && pauseKeyDownThisFrame)
-            {
-                if (!paused)
-                    paused = true;
                 else
-                    paused = false;
+                {
+                    //TODO: show end screen
+                }
             }
-            pauseKeyDown = pauseKeyDownThisFrame;
+            isLvlFinished = monsterGenerator.ControlMonster(gameTime, wizard.Position);
+            CheckCollisions(gameTime);
+            if (levelUp)
+                AnimateLevelUp(gameTime);
         }
 
         private void InitCollPairs()
@@ -479,13 +451,6 @@ namespace TheWizardOfKama
                 spriteBatch.DrawString(spriteFontNormal, "Welcome!", new Vector2(500, 150), Color.FloralWhite);
                 spriteBatch.DrawString(spriteFontNormal, "This is the training level.", new Vector2(500, 200), Color.White);
                 spriteBatch.DrawString(spriteFontNormal, "You can start your journey by using the magic gate!", new Vector2(500, 250), Color.White);
-            }
-            // Draw pause screen
-            if (paused)
-            {
-                spriteBatch.Draw(pauseDarkening, new Rectangle(0, 0, screenWidth, screenHeight), Color.White);
-                spriteBatch.DrawString(spriteFontNormal, "The game is paused. Click 'P' button to resume...", new Vector2(screenWidth / 2 - 300, screenHeight / 2), Color.GhostWhite);
-
             }
             spriteBatch.End();
         }
