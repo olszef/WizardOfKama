@@ -48,7 +48,10 @@ namespace TheWizardOfKama
         {
             endOfLife = true;
             MagicSpeed = 0;
-            startFrame = collStartFrame;
+            if (name == "special")
+                currentFrame = collStartFrame;
+            else
+                startFrame = collStartFrame;
             endFrame = collEndFrame;
             animationFrames = collPerFrame;
         }

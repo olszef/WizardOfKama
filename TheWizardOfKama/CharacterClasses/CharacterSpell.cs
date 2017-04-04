@@ -31,7 +31,7 @@ namespace TheWizardOfKama
             width = texture.Width / textureColumns;
             height = texture.Height / textureRows;
 
-            if (name == "lighting")
+            if (name == "lighting" || name == "special")
                 figure = new Rectangle();
             else
                 figure = new Circle();
@@ -58,7 +58,7 @@ namespace TheWizardOfKama
 
             if (endOfLife)
             {
-                if (name == "lighting")
+                if (name == "lighting" || name == "special")
                     figure = new Rectangle();
                 else
                     figure = new Circle();
@@ -67,6 +67,8 @@ namespace TheWizardOfKama
             {
                 if (name == "lighting")
                     figure = new Rectangle((int)position.X, (int)position.Y, width, height);
+                else if (name == "special")
+                    figure = new Rectangle((int)position.X + width/4, (int)position.Y + height/4, width - width/2, height - height/2);
                 else
                     figure = new Circle(new Vector2((position.X + (width / 2)), (position.Y + (height / 2))), width / 2);
             }

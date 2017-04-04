@@ -20,7 +20,7 @@ namespace TheWizardOfKama
         Texture2D[] monsterEffTextures;
         Texture2D drawTexture;
         Texture2D spellTexture;
-        public Texture2D[] healthBarTexture = new Texture2D[2];
+        Texture2D[] healthBarTexture = new Texture2D[2];
         Rectangle sourceRectangle;
         Rectangle destinationRectangle;
         Rectangle healthBarSrcRect;
@@ -63,7 +63,7 @@ namespace TheWizardOfKama
         Zombie zombie;
         Birdy birdy;
         Lander lander;
-        List<Monster> monsterList;
+        List<Monster> monsterList = new List<Monster>();
         public int MonstersLeft { get { return monsterList.Count(); } }
         List<LanderSpell> spells = new List<LanderSpell>();
         public List<LanderSpell> Spells { get { return spells; } }
@@ -83,16 +83,18 @@ namespace TheWizardOfKama
         //* Other data *
         Random random = new Random();
         Vector2 wizardPosition;
+        bool isLvlFinished = false;
         //***********************************************************************
 
-        public MonsterGenerator(Texture2D[] monsterTextures, Texture2D spellTexture, Texture2D[] monsterEffTextures, int screenWidth, int screenHeight)
+        public MonsterGenerator(Texture2D[] monsterTextures, Texture2D spellTexture, Texture2D[] monsterEffTextures, Texture2D[] healthBarTexture, int screenWidth, int screenHeight)
         {
             this.screenWidth = screenWidth;
             this.screenHeight = screenHeight;
             this.spellTexture = spellTexture;
             this.monsterEffTextures = monsterEffTextures;
-            monsterList = new List<Monster>();
-            monsterNumber = random.Next(3,6);
+            this.healthBarTexture = healthBarTexture;
+            //monsterList = new List<Monster>();
+            monsterNumber = random.Next(1,1);
             this.monsterTextures = new Texture2D[monsterNumber];
             for (int i = 0; i < monsterNumber; i++)
             {
@@ -113,8 +115,10 @@ namespace TheWizardOfKama
                 }
             }
         }
+        public MonsterGenerator()
+        { }
 
-        public void ControlMonster(GameTime gameTime, Vector2 wizardPosition)
+        public bool ControlMonster(GameTime gameTime, Vector2 wizardPosition)
         {
             this.wizardPosition = wizardPosition;
             animationTimer += gameTime.ElapsedGameTime.Milliseconds;
@@ -162,21 +166,18 @@ namespace TheWizardOfKama
                 if (activeMonster is Zombie)
                 {
                     ControlZombie(gameTime);
-                    healthBarDrawingDispl = 80;
                 }
 
                 // ******** Birdy control section ********
                 else if (activeMonster is Birdy)
                 {
                     ControlBirdy(gameTime);
-                    healthBarDrawingDispl = 0;
                 }
 
                 // ******** Lander control section ********
                 else if (activeMonster is Lander)
                 {
                     ControlLander(gameTime);
-                    healthBarDrawingDispl = 150;
                 }
                 else
                 {
@@ -184,10 +185,19 @@ namespace TheWizardOfKama
 
                 }
             }
+            else if ((monsterState == MonsterState.Dead) && (monsterList.Count == 0))
+            {
+                isLvlFinished = true;
+            }
+
             // update monster spell
             ControlMonsterSpell(gameTime);
+
             // initialize wizard shield flag
             isWizardShieldActive = false;
+
+            // return level state
+            return isLvlFinished;
         }
 
         private void LoadNextMonster(GameTime gameTime)
@@ -201,6 +211,7 @@ namespace TheWizardOfKama
                 monTextureColumns = Zombie.zombieColumns;
                 monTextureRows = Zombie.zombieRows;
                 currentFrame = zombie.Move(gameTime, monsterState);
+                healthBarDrawingDispl = 80;
             }
             else if (activeMonster is Birdy)
             {
@@ -208,6 +219,7 @@ namespace TheWizardOfKama
                 monTextureColumns = Birdy.birdyColumns;
                 monTextureRows = Birdy.birdyRows;
                 currentFrame = birdy.Move(gameTime, monsterState);
+                healthBarDrawingDispl = 0;
             }
             else
             {
@@ -215,6 +227,7 @@ namespace TheWizardOfKama
                 monTextureColumns = Lander.landerColumns;
                 monTextureRows = Lander.landerRows;
                 currentFrame = lander.Move(gameTime, monsterState, Directions.Left);
+                healthBarDrawingDispl = 150;
             }
 
             drawTexture = monsterTextures[monsterNumber - 1];
@@ -536,7 +549,6 @@ namespace TheWizardOfKama
                 }
             }
         }
-
 
         public void Draw(SpriteBatch spriteBatch)
         {

@@ -71,7 +71,7 @@ namespace TheWizardOfKama
         float posXModifier;
         const float jumpSpeed = 0.1f;
         float jumpMovement;
-        float magicFrame;
+        float castMagicFrame;
         float castStartXPosition;
         float castStartYPosition;
         Texture2D[] spellsTextures;
@@ -127,7 +127,7 @@ namespace TheWizardOfKama
                 {"water", new SpellParam(7, 50) },
                 {"gravity", new SpellParam(3, 7) },
                 {"shield", new SpellParam(20, 0) },
-                {"special", new SpellParam(99, 9999) },
+                {"special", new SpellParam(50, 100) },
             };
         }
 
@@ -233,7 +233,7 @@ namespace TheWizardOfKama
         {
             animationTimer += gameTime.ElapsedGameTime.Milliseconds;
             castingTimer += gameTime.ElapsedGameTime.Milliseconds;
-            if (animationTimer > magicFrame)
+            if (animationTimer > castMagicFrame)
             {
                 animationTimer = 0;
                 currentFrame++;
@@ -352,7 +352,7 @@ namespace TheWizardOfKama
                         {
                             currentFrame = castingStartFrame;
                             moveState = MoveState.Cast;
-                            magicFrame = 110;
+                            castMagicFrame = 110;
                             castStartXPosition = position.X + castWidth / 4 * 3;
                             castStartYPosition = position.Y - 100;
                             mana -= spellParams["lighting"].SpellCost;
@@ -368,7 +368,7 @@ namespace TheWizardOfKama
                         {
                             currentFrame = castingStartFrame;
                             moveState = MoveState.Cast;
-                            magicFrame = 110;
+                            castMagicFrame = 110;
                             castStartXPosition = position.X + castWidth / 4 * 3;
                             castStartYPosition = position.Y;
                             mana -= spellParams["water"].SpellCost;
@@ -384,7 +384,7 @@ namespace TheWizardOfKama
                         {
                             currentFrame = castingStartFrame;
                             moveState = MoveState.Cast;
-                            magicFrame = 110;
+                            castMagicFrame = 110;
                             castStartXPosition = position.X + castWidth / 4 * 3;
                             castStartYPosition = position.Y;
                             mana -= spellParams["gravity"].SpellCost;
@@ -400,7 +400,7 @@ namespace TheWizardOfKama
                         {
                             currentFrame = castingStartFrame;
                             moveState = MoveState.Cast;
-                            magicFrame = 110;
+                            castMagicFrame = 110;
                             castStartXPosition = position.X;
                             castStartYPosition = position.Y;
                             mana -= spellParams["shield"].SpellCost;
@@ -414,11 +414,14 @@ namespace TheWizardOfKama
                     case KeysCombo.DownLeftX:
                         if (spellParams["special"].SpellCost <= mana && specialAbilityLeft)
                         {
-                            castStartXPosition = position.X;
-                            castStartYPosition = position.Y;
+                            currentFrame = castingStartFrame;
+                            moveState = MoveState.Cast;
+                            castMagicFrame = 110;
+                            castStartXPosition = position.X + 50;
+                            castStartYPosition = position.Y - 150;
                             mana -= spellParams["special"].SpellCost;
                             specialAbilityLeft = false;
-                            spells.Add(new CharacterSpell("special", spellParams["special"].SpellPower, spellsTextures[4], castStartXPosition, castStartYPosition, gameTime, 0, 4, 1, 27, 80, 0));
+                            spells.Add(new CharacterSpell("special", spellParams["special"].SpellPower, spellsTextures[4], castStartXPosition, castStartYPosition, gameTime, 0, 15, 6, 6, 5, 30));
                         }
                         else
                         {
@@ -546,6 +549,9 @@ namespace TheWizardOfKama
                     perFrame = 40;
                     break;
                 case "special":
+                    startFrame = 16;
+                    endFrame = 30;
+                    perFrame = 60;
                     break;
             }
             spells[spellNumber].HandleCollsion(startFrame, endFrame, perFrame);
@@ -605,6 +611,12 @@ namespace TheWizardOfKama
 
 
 
+        }
+
+        public void RelocateWizard()
+        {
+            position.X = startXPosition;
+            position.Y = startYPosition;
         }
     }
 }
