@@ -22,7 +22,7 @@ namespace TheWizardOfKama
         Texture2D charTexture;
         Texture2D castTexture;
         Texture2D drawTexture;
-        const int charRows = 7;
+        const int charRows = 6;
         const int charColumns = 4;
         const int castRows = 3;
         const int castColumns = 1;
@@ -40,15 +40,15 @@ namespace TheWizardOfKama
         const float manaRegenerationTime = 2000;
         const int manaRegenerated = 2;
         const float startXPosition = 20;
-        const float startYPosition = 480;
+        const float startYPosition = 450;
         const int idlePerFrame = 80;
         const int idleStartFrame = 0;
         const int idleEndFrame = 2;
         const int walkPerFrame = 40;
         const int walkRightStartFrame = 5;
         const int walkRightEndFrame = 7;
-        const int walkLeftStartFrame = 25;
-        const int walkLeftEndFrame = 27;
+        const int walkLeftStartFrame = 8;
+        const int walkLeftEndFrame = 11;
         const int jumpPerFrame = 40;
         const int jumpRightStartFrame = 12;
         const int jumpRightEndFrame = 14;

@@ -140,9 +140,6 @@
     <Content Include="Content\character\water.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\character\WizardMoves.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Content\monsters\birdy.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

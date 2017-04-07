@@ -135,7 +135,7 @@ namespace TheWizardOfKama
             backgroundWinter_file = "backgrounds/Winter";
             backgroundCastle_file = "backgrounds/Castle";
             backgroundForest_file = "backgrounds/Forest";
-            wizard_file = "character/WizardMoves";
+            wizard_file = "character/BasicWizardMoves";
             casting_file = "character/casting";
             lighting_file = "character/lighting";
             water_file = "character/water";
