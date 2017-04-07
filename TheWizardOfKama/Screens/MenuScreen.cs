@@ -37,13 +37,15 @@ namespace TheWizardOfKama
             };
         }
 
-        public override void Update(GameTime gameTime)
+        public override GameStats Update(GameTime gameTime)
         {
             foreach (MenuComponent component in menuComponents)
             {
                 if (component.Enabled)
                     component.Update(gameTime);
             }
+
+            return endGameStats;
         }
 
         public override void Draw(GameTime gameTime)

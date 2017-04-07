@@ -13,6 +13,11 @@ namespace TheWizardOfKama
 {
 	abstract class GameScreen
 	{
+        protected SpriteFont spriteFontSmall;
+        protected SpriteFont spriteFontNormal;
+        protected SpriteFont spriteFontBig;
+        protected SpriteFont spriteFontLarge;
+        protected Vector2 textSize;
         protected string name;
         protected bool enabled;
 		protected Game game;
@@ -23,6 +28,7 @@ namespace TheWizardOfKama
 		protected Rectangle imageRectangle;
         protected int screenWidth;
         protected int screenHeight;
+        protected GameStats endGameStats = new GameStats();
 
         public bool Enabled
         {
@@ -49,8 +55,9 @@ namespace TheWizardOfKama
 		{
 		}
 
-        public virtual void Update(GameTime gameTime)
+        public virtual GameStats Update(GameTime gameTime)
         {
+            return endGameStats;
         }
 
         public virtual void Show()

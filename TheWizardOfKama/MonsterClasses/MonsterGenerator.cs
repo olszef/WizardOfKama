@@ -83,7 +83,7 @@ namespace TheWizardOfKama
         //* Other data *
         Random random = new Random();
         Vector2 wizardPosition;
-        bool isLvlFinished = false;
+        bool areAllMonstersDead = false;
         //***********************************************************************
 
         public MonsterGenerator(Texture2D[] monsterTextures, Texture2D spellTexture, Texture2D[] monsterEffTextures, Texture2D[] healthBarTexture, int screenWidth, int screenHeight)
@@ -182,7 +182,7 @@ namespace TheWizardOfKama
             }
             else if ((monsterState == MonsterState.Dead) && (monsterList.Count == 0))
             {
-                isLvlFinished = true;
+                areAllMonstersDead = true;
             }
 
             // update monster spell
@@ -192,7 +192,7 @@ namespace TheWizardOfKama
             isWizardShieldActive = false;
 
             // return level state
-            return isLvlFinished;
+            return areAllMonstersDead;
         }
 
         private void LoadNextMonster(GameTime gameTime)

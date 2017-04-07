@@ -49,10 +49,10 @@ namespace TheWizardOfKama
             menuWidth = 0;
             foreach (string item in menuItems)
             {
-                Vector2 size = spriteFontSmall.MeasureString(item);
+                Vector2 size = spriteFontNormal.MeasureString(item);
                 if (size.X > menuWidth)
                     menuWidth = size.X;
-                menuHeight += spriteFontSmall.LineSpacing + lineSpacing;
+                menuHeight += spriteFontNormal.LineSpacing + lineSpacing;
             }
 
             position = new Vector2((screenWidth - menuWidth) / 2, (screenHeight - menuHeight) / 2);
@@ -92,8 +92,8 @@ namespace TheWizardOfKama
                     itemColor = normalColor;
 
                 spriteBatch.Begin();
-                spriteBatch.DrawString(spriteFontSmall, menuItems[i], location, itemColor);
-                location.Y += spriteFontSmall.LineSpacing + lineSpacing;
+                spriteBatch.DrawString(spriteFontNormal, menuItems[i], location, itemColor);
+                location.Y += spriteFontNormal.LineSpacing + lineSpacing;
                 spriteBatch.End();
             }
         }

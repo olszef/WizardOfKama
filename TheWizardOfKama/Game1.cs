@@ -14,22 +14,29 @@ namespace TheWizardOfKama
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        SpriteFont spriteFontSmall;
         SpriteFont spriteFontNormal;
         const int screenWidth = 1600;
         const int screenHeight = 900;
         GameScreen activeScreen;
         MenuScreen menuScreen;
         ActionScreen actionScreen;
-        //EndScreen endScreen;
+        EndScreen endScreen;
+        GameStats gameStats = new GameStats();
         List<GameScreen> gameScreens;
         KeyboardState keyboardState;
         KeyboardState oldKeyboardState;
         bool paused = false;
-        bool pauseKeyDown = false;
         bool exit = false;
-        bool escKeyDown = false;
         Texture2D pauseDarkening;
         string pauseDarkening_file;
+        bool isGameLost = false;
+        Vector2 textSize;
+        string gameOverTitle = "GAME OVER";
+        string gameOverExitInstructions = "Sorry, You lost... Please Click 'Esc' to end the game.";
+        string gameOverRestartInstructions = "Please Click 'R' to restart the game.";
+        const float timeToShowWinScreen = 2000;
+        float beforeWinScreenTimer = 0;
 
         public Game1()
         {
@@ -64,16 +71,17 @@ namespace TheWizardOfKama
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            spriteFontNormal = Content.Load<SpriteFont>("GameText24");
+            spriteFontSmall = Content.Load<SpriteFont>("GameText24");
+            spriteFontNormal = Content.Load<SpriteFont>("GameText36");
             pauseDarkening = Content.Load<Texture2D>(pauseDarkening_file);
             menuScreen = new MenuScreen(this, Content, spriteBatch, "menuScreen");
             actionScreen = new ActionScreen(this, Content, spriteBatch, "actionScreen");
-            //endScreen = new EndScreen(this, Content, spriteBatch, "endScreen");
+            endScreen = new EndScreen(this, Content, spriteBatch, "endScreen");
             gameScreens = new List<GameScreen>
             {
                 menuScreen,
                 actionScreen,
-                //endScreen
+                endScreen
             };
             activeScreen = menuScreen;
             activeScreen.Show();
@@ -129,7 +137,7 @@ namespace TheWizardOfKama
                                         menuScreen.ShowMenuComponent(3);
                                         break;
                                     case 4:
-                                        this.Exit();
+                                        Exit();
                                         break;
                                 }
                                 break;
@@ -150,25 +158,60 @@ namespace TheWizardOfKama
                     activeScreen.Update(gameTime);
                     break;
                 case "actionScreen":
-                    //TODO:
                     checkPauseKeys(keyboardState);
-                    if (!paused && !exit)
-                        activeScreen.Update(gameTime);
+                    if ((!paused  || gameStats.IsEndGame) && !exit)
+                    {
+                        gameStats = activeScreen.Update(gameTime);
+                        if (gameStats.IsEndGame)
+                        {
+                            if (gameStats.IsWon)
+                            {
+                                beforeWinScreenTimer += gameTime.ElapsedGameTime.Milliseconds;
+                                if(beforeWinScreenTimer >= timeToShowWinScreen)
+                                {
+                                    activeScreen.Hide();
+                                    activeScreen = endScreen;
+                                    activeScreen.Show();
+                                    endScreen.LoadGameStats(gameStats);                                   
+                                }
+                            }
+                            else
+                            {
+                                isGameLost = true;
+                                if (CheckKey(Keys.R))
+                                {
+                                    Restart.RestartGame = true;
+                                    Exit();
+                                }
+                            }
+                        }
+                    }
                     else
                     {
                         if (exit)
                         {
-                            if (CheckKey(Keys.Y))
+                            if (isGameLost)
                                 Exit();
-                            else if (CheckKey(Keys.N))
-                                exit = false;
+                            else
+                            {
+                                if (CheckKey(Keys.Y))
+                                    Exit();
+                                else if (CheckKey(Keys.N))
+                                    exit = false;
+                            }
                         }
                     }
                     break;
-                /*case "endScreen":
-                    //TODO:
+                case "endScreen":
                     activeScreen.Update(gameTime);
-                    break;*/
+                    if (CheckKey(Keys.Escape))
+                        Exit();
+                    else if (CheckKey(Keys.R))
+                    {
+                        Restart.RestartGame = true;
+                        Exit();
+                    }
+                    break;
             }
             oldKeyboardState = keyboardState;
             base.Update(gameTime);
@@ -188,17 +231,33 @@ namespace TheWizardOfKama
                 if (screen.Enabled)
                 {
                     screen.Draw(gameTime);
-                    // Draw pause screen
-                    if (paused || exit)
+
+                    // Draw game stop screens
+                    spriteBatch.Begin();
+                    if (!isGameLost)
                     {
-                        spriteBatch.Begin();
-                        spriteBatch.Draw(pauseDarkening, new Rectangle(0, 0, screenWidth, screenHeight), Color.White);
-                        if (exit)
-                            spriteBatch.DrawString(spriteFontNormal, "Do you really want to exit the game? Click (Y)es or (N)o ...", new Vector2(screenWidth / 2 - 400, screenHeight / 2), Color.GhostWhite);
-                        else
-                            spriteBatch.DrawString(spriteFontNormal, "The game is paused. Click 'P' button to resume...", new Vector2(screenWidth / 2 - 300, screenHeight / 2), Color.GhostWhite);
-                        spriteBatch.End();
+                        if (paused || exit)
+                        {
+                            {
+                                spriteBatch.Draw(pauseDarkening, new Rectangle(0, 0, screenWidth, screenHeight), Color.White);
+                                if (exit)
+                                    spriteBatch.DrawString(spriteFontSmall, "Do you really want to exit the game? Click (Y)es or (N)o ...", new Vector2(screenWidth / 2 - 400, screenHeight / 2), Color.GhostWhite);
+                                else
+                                    spriteBatch.DrawString(spriteFontSmall, "The game is paused. Click 'P' button to resume...", new Vector2(screenWidth / 2 - 300, screenHeight / 2), Color.GhostWhite);
+                            }
+                        }
                     }
+                    else
+                    {
+                        spriteBatch.Draw(pauseDarkening, new Rectangle(0, 0, screenWidth, screenHeight), Color.White);
+                        textSize = spriteFontNormal.MeasureString(gameOverTitle);
+                        spriteBatch.DrawString(spriteFontNormal, gameOverTitle, new Vector2((screenWidth - textSize.X) / 2, 400), Color.Red);
+                        textSize = spriteFontSmall.MeasureString(gameOverExitInstructions);
+                        spriteBatch.DrawString(spriteFontSmall, gameOverExitInstructions, new Vector2((screenWidth - textSize.X) / 2, 500), Color.GhostWhite);
+                        textSize = spriteFontSmall.MeasureString(gameOverRestartInstructions);
+                        spriteBatch.DrawString(spriteFontSmall, gameOverRestartInstructions, new Vector2((screenWidth - textSize.X) / 2, 550), Color.GhostWhite);
+                    }
+                    spriteBatch.End();
                 }
             }
             base.Draw(gameTime);

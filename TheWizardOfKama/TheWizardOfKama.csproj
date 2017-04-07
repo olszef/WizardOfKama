@@ -38,13 +38,14 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CharacterClasses\GameStats.cs" />
     <Compile Include="CharacterClasses\Spell.cs" />
     <Compile Include="CharacterClasses\SpellParam.cs" />
     <Compile Include="Collisions\Circle.cs" />
     <Compile Include="Collisions\CollisionDetector.cs" />
     <Compile Include="LevelGenerator.cs" />
     <Compile Include="MonsterClasses\Birdy.cs" />
-    <Compile Include="CharacterClasses\Character.cs" />
+    <Compile Include="CharacterClasses\Wizard.cs" />
     <Compile Include="CharacterClasses\Control.cs" />
     <Compile Include="MonsterClasses\Directions.cs" />
     <Compile Include="Game1.cs" />
@@ -59,7 +60,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CharacterClasses\CharacterSpell.cs" />
     <Compile Include="MonsterClasses\Zombie.cs" />
+    <Compile Include="Restart.cs" />
     <Compile Include="Screens\ActionScreen.cs" />
+    <Compile Include="Screens\EndScreen.cs" />
     <Compile Include="Screens\GameScreen.cs" />
     <Compile Include="Screens\MainMenu.cs" />
     <Compile Include="Screens\MenuComponent.cs" />
@@ -102,6 +105,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\backgrounds\Winter.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\backgrounds\WinWallpaper.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\character\BasicWizardMoves.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\character\casting.png">

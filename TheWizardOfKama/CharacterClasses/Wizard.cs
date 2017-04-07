@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Design;
 
 namespace TheWizardOfKama
 {
-    class Character
+    class Wizard
     {
         Rectangle sourceRectangle;
         Rectangle destinationRectangle;
@@ -97,9 +97,10 @@ namespace TheWizardOfKama
         const int baseHealth = 100;
         bool noMana = false;
         bool specialAbilityLeft = true;
+        bool isWizardDead = false;
         //**************************************************************
 
-        public Character(Texture2D wizardTexture, Texture2D castingTexture, Texture2D[] spells, int screenWidth, int screenHeight)
+        public Wizard(Texture2D wizardTexture, Texture2D castingTexture, Texture2D[] spells, int screenWidth, int screenHeight)
         {
             charTexture = wizardTexture;
             castTexture = castingTexture;
@@ -131,13 +132,13 @@ namespace TheWizardOfKama
             };
         }
 
-        public void UpdateWizard(GameTime gameTime)
+        public bool UpdateWizardMoves(GameTime gameTime)
         {
             if (moveState == MoveState.Hurt)
             {
                 GetHurt(gameTime);
             }
-            if (moveState == MoveState.Dead)
+            else if (moveState == MoveState.Dead)
             {
                 AnimateWizardsDeath(gameTime);
             }
@@ -161,6 +162,8 @@ namespace TheWizardOfKama
             }
             UpdateSpells(gameTime);
             isWizMonColl = false;
+
+            return isWizardDead;
         }
 
         public void DrawWizard(SpriteBatch spriteBatch)
@@ -504,6 +507,8 @@ namespace TheWizardOfKama
                 animationTimer = 0;
                 if (currentFrame < deadEndFrame)
                     currentFrame++;
+                else
+                    isWizardDead = true;
             }
 
             oldState = moveState;

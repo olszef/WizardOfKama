@@ -20,7 +20,7 @@ namespace TheWizardOfKama
         string backgroundWindmill_file;
         string backgroundWinter_file;
         string backgroundField_file;
-        Character wizard;
+        Wizard wizard;
         MonsterGenerator monsterGenerator;
         LevelGenerator levelGenerator;
         private Texture2D wizardTexture;
@@ -52,8 +52,6 @@ namespace TheWizardOfKama
         string[] collisions;
         float actionTimer = 0;
         const float collisionPerFrame = 500;
-        SpriteFont spriteFontNormal;
-        SpriteFont spriteFontBig;
         int gainedExp;
         bool levelUp = false;
         float levelUpTextTimer = 0;
@@ -68,7 +66,8 @@ namespace TheWizardOfKama
         const int levelUpRows = 1;
         Rectangle lvlUpSourceRectangle;
         Rectangle lvlUpDestinationRectangle;
-        bool isLvlFinished = false;
+        bool areAllMonstersDead = false;
+        bool isWizardDead = false;
         // * Gate Texture Data *
         const int gateEndFrame = 15;
         const int gateColumns = 4;
@@ -81,6 +80,8 @@ namespace TheWizardOfKama
         int gateHeight;
         const int gateXPosition = 1100;
         const int gateYPosition = 400;
+        float totalPlayedTime = 0;
+        string gameWinTitle = "VICTORY!";
         //********************************
 
         public ActionScreen(Game game, ContentManager content, SpriteBatch spriteBatch, string name) : base(game, content, spriteBatch, name)
@@ -120,7 +121,7 @@ namespace TheWizardOfKama
             monsterEffTextures[2] = content.Load<Texture2D>(landerExplosion_file);
             monsterEffTextures[3] = content.Load<Texture2D>(monsterRespawn_file);
             landerSpellTexture = content.Load<Texture2D>(landerSpell_file);
-            wizard = new Character(wizardTexture, castingTexture, spells, screenWidth, screenHeight);
+            wizard = new Wizard(wizardTexture, castingTexture, spells, screenWidth, screenHeight);
             LoadNextLevel();
             healthBarTexture[0] = content.Load<Texture2D>("monsters/HealthBar");
             healthBarTexture[1] = content.Load<Texture2D>("monsters/HealthBarFrame");
@@ -154,12 +155,12 @@ namespace TheWizardOfKama
             levelGenerator = new LevelGenerator();
         }
 
-        public override void Update(GameTime gameTime)
+        public override GameStats Update(GameTime gameTime)
         {
-            base.Update(gameTime);
-            wizard.UpdateWizard(gameTime);
+            totalPlayedTime += gameTime.ElapsedGameTime.Milliseconds;
+            isWizardDead = wizard.UpdateWizardMoves(gameTime);
 
-            if (isLvlFinished)
+            if (areAllMonstersDead && !isWizardDead)
             {
                 if (levelGenerator.LevelNumber != LevelGenerator.FinalLevel)
                 {
@@ -171,13 +172,17 @@ namespace TheWizardOfKama
                 }
                 else
                 {
-                    //TODO: show end screen
+                    endGameStats.SetFinalStats(wizard.Level, true, totalPlayedTime);
                 }
             }
-            isLvlFinished = monsterGenerator.ControlMonster(gameTime, wizard.Position);
+            areAllMonstersDead = monsterGenerator.ControlMonster(gameTime, wizard.Position);
             CheckCollisions(gameTime);
             if (levelUp)
                 AnimateLevelUp(gameTime);
+            if (isWizardDead)
+                endGameStats.SetFinalStats(wizard.Level, false, totalPlayedTime);
+
+            return endGameStats;
         }
 
         private void InitCollPairs()
@@ -413,8 +418,9 @@ namespace TheWizardOfKama
                 monsterGenerator = new MonsterGenerator(monsterTextures, landerSpellTexture, monsterEffTextures, healthBarTexture, screenWidth, screenHeight);
             }
 
-            isLvlFinished = false;
+            areAllMonstersDead = false;
             currentgateFrame = 0;
+            endGameStats.UpdateKilledMonstersNo(monsterGenerator.MonstersLeft);
         }
 
         public override void Draw(GameTime gameTime)
@@ -441,7 +447,7 @@ namespace TheWizardOfKama
                 spriteBatch.Draw(levelUpWaves, lvlUpDestinationRectangle, lvlUpSourceRectangle, Color.White);
             }
             // Draw level end gate
-            if (isLvlFinished && levelGenerator.LevelNumber != LevelGenerator.FinalLevel)
+            if (areAllMonstersDead && levelGenerator.LevelNumber != LevelGenerator.FinalLevel)
             {
                 spriteBatch.Draw(endGate, gateDestinationRectangle, gateSourceRectangle, Color.White);
             }
@@ -451,6 +457,11 @@ namespace TheWizardOfKama
                 spriteBatch.DrawString(spriteFontNormal, "Welcome!", new Vector2(500, 150), Color.FloralWhite);
                 spriteBatch.DrawString(spriteFontNormal, "This is the training level.", new Vector2(500, 200), Color.White);
                 spriteBatch.DrawString(spriteFontNormal, "You can start your journey by using the magic gate!", new Vector2(500, 250), Color.White);
+            }
+            if (endGameStats.IsWon && this.enabled)
+            {
+                textSize = spriteFontBig.MeasureString(gameWinTitle);
+                spriteBatch.DrawString(spriteFontBig, gameWinTitle, new Vector2((screenWidth - textSize.X) / 2, 300), Color.DeepPink);
             }
             spriteBatch.End();
         }

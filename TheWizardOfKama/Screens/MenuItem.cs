@@ -20,7 +20,7 @@ namespace TheWizardOfKama
         {
             textItem = "Return to Main Menu";
             itemColor = normalColor;
-            itemSize = spriteFontSmall.MeasureString(textItem);
+            itemSize = spriteFontNormal.MeasureString(textItem);
         }
 
         public override void Update(GameTime gameTime)
@@ -46,7 +46,7 @@ namespace TheWizardOfKama
             //textSize = spriteFontBig.MeasureString(name);
             spriteBatch.Begin();
             //spriteBatch.DrawString(spriteFontBig, name, new Vector2((screenWidth - textSize.X) / 2, 100), Color.Gold);
-            spriteBatch.DrawString(spriteFontSmall, textItem, new Vector2((screenWidth - itemSize.X) / 2, screenHeight - 100), itemColor);
+            spriteBatch.DrawString(spriteFontNormal, textItem, new Vector2((screenWidth - itemSize.X) / 2, screenHeight - 100), itemColor);
             spriteBatch.End();
         }
     }

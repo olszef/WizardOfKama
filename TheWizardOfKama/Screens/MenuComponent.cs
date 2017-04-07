@@ -29,7 +29,7 @@ namespace TheWizardOfKama
         protected KeyboardState oldKeyboardState;
 
         protected SpriteBatch spriteBatch;
-        protected SpriteFont spriteFontSmall;
+        protected SpriteFont spriteFontNormal;
         protected SpriteFont spriteFontBig;
         protected SpriteFont spriteFontLarge;
         protected string imagePath;
@@ -87,7 +87,7 @@ namespace TheWizardOfKama
         private void LoadContent()
         {
             image = content.Load<Texture2D>(imagePath);
-            spriteFontSmall = content.Load<SpriteFont>("GameText36");
+            spriteFontNormal = content.Load<SpriteFont>("GameText36");
             spriteFontBig = content.Load<SpriteFont>("GameText56");
             spriteFontLarge = content.Load<SpriteFont>("GameText70");
         }

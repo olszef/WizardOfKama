@@ -14,8 +14,13 @@ namespace TheWizardOfKama
         [STAThread]
         static void Main()
         {
-            using (var game = new Game1())
-                game.Run();
+            do
+            {
+                Restart.RestartGame = false;
+                using (var game = new Game1())
+                    game.Run();
+            } while (Restart.RestartGame);
+
         }
     }
 #endif
