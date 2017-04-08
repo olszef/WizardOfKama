@@ -41,8 +41,8 @@ namespace TheWizardOfKama
             oldState = MonsterState.Idle;
             currentFrame = idleStartFrame;
             health = 50;
-            attackPower = 75;
-            experienceForPlayer = 1000;
+            attackPower = 7;
+            experienceForPlayer = 450;
         }
 
         public int Move(GameTime gameTime, MonsterState zombieState)

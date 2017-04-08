@@ -12,6 +12,7 @@ namespace TheWizardOfKama
         Run,
         Cast,
         Attack,
+        Prepare,
         Hurt,
         Dead,
     }

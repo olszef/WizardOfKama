@@ -94,7 +94,7 @@ namespace TheWizardOfKama
         int experience = 0;
         const int expToNextLvl = 1000;
         int baseMana = 100;
-        const int baseHealth = 100;
+        const int baseHealth = 1000;
         bool noMana = false;
         bool specialAbilityLeft = true;
         bool isWizardDead = false;

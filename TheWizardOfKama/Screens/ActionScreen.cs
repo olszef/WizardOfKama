@@ -35,8 +35,8 @@ namespace TheWizardOfKama
         private string levelUpWaves_file;
         string endGate_file;
         private Texture2D[] spells = new Texture2D[5];
-        Texture2D[] monsterTextures = new Texture2D[3];
-        Texture2D[] monsterEffTextures = new Texture2D[4];
+        Texture2D[] monsterTextures = new Texture2D[4];
+        Texture2D[] monsterEffTextures = new Texture2D[5];
         Texture2D[] healthBarTexture = new Texture2D[2];
         Texture2D landerSpellTexture;
         Texture2D levelUpWaves;
@@ -46,6 +46,8 @@ namespace TheWizardOfKama
         string birdy_file;
         string birdyExplosion_file;
         string lander_file;
+        string orc_file;
+        string orcDeath_file;
         string landerSpell_file;
         string landerExplosion_file;
         string monsterRespawn_file;
@@ -116,10 +118,12 @@ namespace TheWizardOfKama
             monsterTextures[0] = content.Load<Texture2D>(zombie_file);
             monsterTextures[1] = content.Load<Texture2D>(birdy_file);
             monsterTextures[2] = content.Load<Texture2D>(lander_file);
+            monsterTextures[3] = content.Load<Texture2D>(orc_file);
             monsterEffTextures[0] = content.Load<Texture2D>(zombieDeath_file);
             monsterEffTextures[1] = content.Load<Texture2D>(birdyExplosion_file);
             monsterEffTextures[2] = content.Load<Texture2D>(landerExplosion_file);
             monsterEffTextures[3] = content.Load<Texture2D>(monsterRespawn_file);
+            monsterEffTextures[4] = content.Load<Texture2D>(orcDeath_file);
             landerSpellTexture = content.Load<Texture2D>(landerSpell_file);
             wizard = new Wizard(wizardTexture, castingTexture, spells, screenWidth, screenHeight);
             LoadNextLevel();
@@ -149,6 +153,8 @@ namespace TheWizardOfKama
             lander_file = "monsters/lander";
             landerExplosion_file = "monsters/landerExplosion";
             landerSpell_file = "monsters/landerAttack";
+            orc_file = "monsters/BasicOrcMoves";
+            orcDeath_file = "monsters/orcDeath";
             levelUpWaves_file = "character/LevelUpWaves";
             monsterRespawn_file = "monsters/respawnAnim";
             endGate_file = "other/EndGate";
@@ -224,6 +230,10 @@ namespace TheWizardOfKama
                                 {
                                     isCollision = CollisionDetector.CirclesIntersection(wizard.CharCircle, monsterGenerator.LanderCircle);
                                 }
+                                else if (monsterGenerator.ActiveMonster is Orc)
+                                {
+                                    isCollision = CollisionDetector.CircRectIntersection(wizard.CharCircle, monsterGenerator.OrcRect);
+                                }
 
                                 actionTimer += gameTime.ElapsedGameTime.Milliseconds;
                                 if (isCollision)
@@ -282,6 +292,11 @@ namespace TheWizardOfKama
                             {
                                 circle2 = monsterGenerator.LanderCircle;
                                 isRect2 = false;
+                            }
+                            else if (monsterGenerator.ActiveMonster is Orc)
+                            {
+                                rect2 = monsterGenerator.OrcRect;
+                                isRect2 = true;
                             }
 
                             for (int spellNum = 0; spellNum < wizard.Spells.Count; spellNum++)
@@ -407,7 +422,7 @@ namespace TheWizardOfKama
             wizard.RelocateWizard();
             if (levelGenerator.LevelNumber == LevelGenerator.FinalLevel)
             {
-                //TODO: load final lvl - boss
+                monsterGenerator = new MonsterGenerator(monsterTextures, monsterEffTextures, healthBarTexture, screenWidth, screenHeight);
             }
             else if (levelGenerator.LevelNumber == LevelGenerator.TrainingLevel)
             {

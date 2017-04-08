@@ -56,6 +56,7 @@
     <Compile Include="MonsterClasses\MonsterGenerator.cs" />
     <Compile Include="MonsterClasses\MonsterState.cs" />
     <Compile Include="CharacterClasses\MoveState.cs" />
+    <Compile Include="MonsterClasses\Orc.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CharacterClasses\CharacterSpell.cs" />
@@ -140,6 +141,9 @@
     <Content Include="Content\character\water.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\monsters\BasicOrcMoves.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\monsters\birdy.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -162,6 +166,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\monsters\landerExplosion.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\monsters\OrcDeath.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\monsters\respawnAnim.png">

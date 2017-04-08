@@ -40,6 +40,7 @@ namespace TheWizardOfKama
         int monsterNumber;
         int monsterNumSpawn;
         int currentFrame;
+        public int CurrentFrame { get { return currentFrame; } }
         const int respawnStartFrame = 0;
         const int respawnEndFrame = 5;
         const int respawnColumns = 6;
@@ -52,8 +53,10 @@ namespace TheWizardOfKama
         float deathLastTimer;
         const float hurtTime = 1000;
         const float respawnTime = 2000;
-        const float deathLastTime = 1000;
+        const float zombieDeathLastTime = 800;
+        const float orcDeathLastTime = 1300;
         const float zombieChangeStateTime = 1000;
+        const float orcChangeStateTime = 1000;
         const float birdyChangeStateTime = 350;
         const float landerChangeStateTime = 500;
         const float respawnPerFrame = 40;
@@ -63,6 +66,7 @@ namespace TheWizardOfKama
         Zombie zombie;
         Birdy birdy;
         Lander lander;
+        Orc orc;
         List<Monster> monsterList = new List<Monster>();
         public int MonstersLeft { get { return monsterList.Count(); } }
         List<LanderSpell> spells = new List<LanderSpell>();
@@ -79,6 +83,8 @@ namespace TheWizardOfKama
         public Circle BirdyCircle { get { return birdyCircle; } }
         Circle landerCircle;
         public Circle LanderCircle { get { return landerCircle; } }
+        Rectangle orcRect;
+        public Rectangle OrcRect { get { return orcRect; } }
         bool isWizardShieldActive = false;
         //* Other data *
         Random random = new Random();
@@ -93,8 +99,7 @@ namespace TheWizardOfKama
             this.spellTexture = spellTexture;
             this.monsterEffTextures = monsterEffTextures;
             this.healthBarTexture = healthBarTexture;
-            //monsterList = new List<Monster>();
-            monsterNumber = random.Next(1,1);
+            monsterNumber = random.Next(0,0);
             this.monsterTextures = new Texture2D[monsterNumber];
             for (int i = 0; i < monsterNumber; i++)
             {
@@ -115,6 +120,19 @@ namespace TheWizardOfKama
                 }
             }
         }
+
+        public MonsterGenerator(Texture2D[] monsterTextures, Texture2D[] monsterEffTextures, Texture2D[] healthBarTexture, int screenWidth, int screenHeight)
+        {
+            this.screenWidth = screenWidth;
+            this.screenHeight = screenHeight;
+            monsterNumber = 1;
+            this.monsterTextures = new Texture2D[monsterNumber];
+            this.monsterEffTextures = monsterEffTextures;
+            this.monsterTextures[0] = monsterTextures[3];
+            this.healthBarTexture = healthBarTexture;
+            monsterList.Add(new Orc());
+        }
+
         public MonsterGenerator()
         { }
 
@@ -124,39 +142,35 @@ namespace TheWizardOfKama
             animationTimer += gameTime.ElapsedGameTime.Milliseconds;
             if ((monsterState == MonsterState.Dead) && (monsterList.Count > 0))
             {
-                deathLastTimer += gameTime.ElapsedGameTime.Milliseconds;
-                if ((deathLastTimer >= deathLastTime && activeMonster is Zombie) || activeMonster == null || activeMonster is Birdy || activeMonster is Lander)
+                monsterNumSpawn = monsterList.Count - 1;
+                respawnTimer += gameTime.ElapsedGameTime.Milliseconds;
+                if (respawnTimer >= respawnTime)
                 {
-                    monsterNumSpawn = monsterList.Count - 1;
-                    respawnTimer += gameTime.ElapsedGameTime.Milliseconds;
-                    if (respawnTimer >= respawnTime)
+                    LoadNextMonster(gameTime);
+                    respawnTimer = 0;
+                    deathLastTimer = 0;
+                    isLoading = false;
+                    healthDrawingFactor = (float)healthBarTexture[0].Width / (float)activeMonster.Health;
+                }
+                else
+                {
+                    if (!isLoading)
                     {
-                        LoadNextMonster(gameTime);
-                        respawnTimer = 0;
-                        deathLastTimer = 0;
-                        isLoading = false;
-                        healthDrawingFactor = (float)healthBarTexture[0].Width / (float)activeMonster.Health;
+                        monTextureColumns = respawnColumns;
+                        monTextureRows = respawnRows;
+                        drawTexture = monsterEffTextures[3];
+                        monTextureWidth = drawTexture.Width / monTextureColumns;
+                        monTextureHeight = drawTexture.Height / monTextureRows;
+                        isLoading = true;
                     }
-                    else
+
+                    if (animationTimer >= respawnPerFrame)
                     {
-                        if (!isLoading)
-                        {
-                            monTextureColumns = respawnColumns;
-                            monTextureRows = respawnRows;
-                            drawTexture = monsterEffTextures[3];
-                            monTextureWidth = drawTexture.Width / monTextureColumns;
-                            monTextureHeight = drawTexture.Height / monTextureRows;
-                            isLoading = true;
-                        }
+                        currentFrame++;
+                        animationTimer = 0;
 
-                        if (animationTimer >= respawnPerFrame)
-                        {
-                            currentFrame++;
-                            animationTimer = 0;
-
-                            if (currentFrame > respawnEndFrame)
-                                currentFrame = respawnStartFrame;
-                        }
+                        if (currentFrame > respawnEndFrame)
+                            currentFrame = respawnStartFrame;
                     }
                 }
             }
@@ -178,6 +192,11 @@ namespace TheWizardOfKama
                 else if (activeMonster is Lander)
                 {
                     ControlLander(gameTime);
+                }
+                // ******** Lander control section ********
+                else if (activeMonster is Orc)
+                {
+                    ControlOrc(gameTime);
                 }
             }
             else if ((monsterState == MonsterState.Dead) && (monsterList.Count == 0))
@@ -216,13 +235,21 @@ namespace TheWizardOfKama
                 currentFrame = birdy.Move(gameTime, monsterState);
                 healthBarDrawingDispl = 0;
             }
-            else
+            else if (activeMonster is Lander)
             {
                 lander = activeMonster as Lander;
                 monTextureColumns = Lander.landerColumns;
                 monTextureRows = Lander.landerRows;
                 currentFrame = lander.Move(gameTime, monsterState, Directions.Left);
                 healthBarDrawingDispl = 150;
+            }
+            else if (activeMonster is Orc)
+            {
+                orc = activeMonster as Orc;
+                monTextureColumns = Orc.orcColumns;
+                monTextureRows = Orc.orcRows;
+                currentFrame = orc.Move(gameTime, monsterState);
+                healthBarDrawingDispl = 400;
             }
 
             drawTexture = monsterTextures[monsterNumber - 1];
@@ -312,8 +339,14 @@ namespace TheWizardOfKama
             {
                 if (currentFrame >= Zombie.effEndFrame)
                 {
-                    monsterList.RemoveAt(monsterList.Count - 1);
-                    monsterState = MonsterState.Dead;
+                    deathLastTimer += gameTime.ElapsedGameTime.Milliseconds;
+                    currentFrame = Zombie.effEndFrame;
+                    if (deathLastTimer >= zombieDeathLastTime)
+                    {
+                        deathLastTimer = 0;
+                        monsterList.RemoveAt(monsterList.Count - 1);
+                        monsterState = MonsterState.Dead;
+                    }
                 }
             }
             else
@@ -517,6 +550,110 @@ namespace TheWizardOfKama
             }
         }
 
+        private void ControlOrc(GameTime gameTime)
+        {
+            // detect if zombie should get hurt/dead state
+            if (monsterState == MonsterState.Hurt)
+            {
+                // zombie is destroyed - gets hit multiple times by wizard's spell
+                if (orc.EndOfLife)
+                {
+                    // zombie wasn't in hurt state OR zombie was in hurt state and wizard destroys zombie
+                    if (oldState != MonsterState.Hurt || (oldState == MonsterState.Hurt && !orcRect.IsEmpty))
+                    {
+                        // change texture to explosion effect sprite and calculate new texture dimensions
+                        drawTexture = monsterEffTextures[4];
+                        effTextureColumns = Orc.orcEffColumns;
+                        effTextureRows = Orc.orcEffRows;
+                        effTextureWidth = drawTexture.Width / effTextureColumns;
+                        effTextureHeight = drawTexture.Height / effTextureRows;
+                        // calculate new position vector, so the effect could occur in the middle of the monster texture
+                        orc.CalculateEffectPosition(monTextureWidth, monTextureHeight, effTextureWidth, effTextureHeight);
+                        // place effect texture as monster texture so it could be drawn
+                        monTextureColumns = effTextureColumns;
+                        monTextureRows = effTextureColumns;
+                        monTextureWidth = effTextureWidth;
+                        monTextureHeight = effTextureHeight;
+                        // draw an empty rectangle so that no collision was detected with the monster
+                        orcRect = new Rectangle();
+                    }
+                }
+                // zombie is hurt, but not destroyed - gets hit by a spell
+                else
+                {
+                    getHurtTimer += gameTime.ElapsedGameTime.Milliseconds;
+                }
+            }
+            // perform other action than 'get hurt'
+            else
+            {
+                // if wizard's shield is inactive perform different actions
+                if (!isWizardShieldActive)
+                {
+                    if (animationTimer >= orcChangeStateTime || currentFrame == 18 || currentFrame == 20)
+                    {
+                        // if the distance between characters is lower than 250, change states between attack and idle
+                        if ((orc.Position.X - wizardPosition.X) <= 250)
+                        {
+                            if (monsterState == MonsterState.Idle)
+                                monsterState = MonsterState.Prepare;
+                            else if (monsterState == MonsterState.Prepare)
+                                monsterState = MonsterState.Attack;
+                            else
+                                monsterState = MonsterState.Idle;
+                        }
+                        // if the distance between characters is higher than 250, change states between run and idle
+                        else
+                        {
+                            if (monsterState == MonsterState.Idle)
+                                monsterState = MonsterState.Run;
+                            else
+                                monsterState = MonsterState.Idle;
+                        }
+                        animationTimer = 0;
+                    }
+                    // change of state peformed outside the timer, so that the monster always stop before the character
+                    else
+                    {
+                        // when distance between charcaters is lower than 200 and monster was running to wizard -> stand for a while
+                        if ((orc.Position.X - wizardPosition.X) <= 200 && monsterState == MonsterState.Run)
+                        {
+                            monsterState = MonsterState.Idle;
+                        }
+                    }
+                }
+                // when wizard's shield is active - stand (idle)
+                else
+                    monsterState = MonsterState.Idle;
+            }
+
+            oldState = monsterState;
+            currentFrame = orc.Move(gameTime, monsterState);
+
+            if (orc.EndOfLife)
+            {
+                if (currentFrame >= Orc.effEndFrame)
+                {
+                    deathLastTimer += gameTime.ElapsedGameTime.Milliseconds;
+                    currentFrame = Orc.effEndFrame;
+                    if (deathLastTimer >= orcDeathLastTime)
+                    {
+                        monsterList.RemoveAt(monsterList.Count - 1);
+                        monsterState = MonsterState.Dead;
+                    }
+                }
+            }
+            else
+            {
+                if (monsterState == MonsterState.Hurt && getHurtTimer >= hurtTime)
+                {
+                    monsterState = MonsterState.Run;
+                    getHurtTimer = 0;
+                }
+                orcRect = new Rectangle((int)orc.Position.X + 100, ((int)orc.Position.Y), monTextureWidth, monTextureHeight);
+            }
+        }
+
         private void ControlMonsterSpell(GameTime gameTime)
         {
             //******** Lander's casting spell *******
@@ -556,11 +693,24 @@ namespace TheWizardOfKama
                     destinationRectangle = new Rectangle((int)monsterList[monsterNumSpawn].Position.X, (int)monsterList[monsterNumSpawn].Position.Y, monTextureWidth, monTextureHeight);
                 else
                 {
+                    int healthBarYPosition;
+                    int healthBarFrameYPosition;
+                    if (activeMonster is Orc)
+                    {
+                        healthBarYPosition = (int)activeMonster.Position.Y + 132;
+                        healthBarFrameYPosition = (int)activeMonster.Position.Y + 130;
+                    }
+                    else
+                    {
+                        healthBarYPosition = (int)activeMonster.Position.Y - 28;
+                        healthBarFrameYPosition = (int)activeMonster.Position.Y - 30;
+                    }
+
                     destinationRectangle = new Rectangle((int)activeMonster.Position.X, (int)activeMonster.Position.Y, monTextureWidth, monTextureHeight);
                     healthBarSrcRect = new Rectangle(0, 0, healthBarTexture[0].Width, healthBarTexture[0].Height);
                     healthBarFrameSrcRect = new Rectangle(0, 0, healthBarTexture[1].Width, healthBarTexture[1].Height);
-                    healthBarDesRect = new Rectangle((int)activeMonster.Position.X + healthBarDrawingDispl + 2, (int)activeMonster.Position.Y - 28, (int)(activeMonster.Health * healthDrawingFactor), healthBarTexture[0].Height);
-                    healthBarFrameDesRect = new Rectangle((int)activeMonster.Position.X + healthBarDrawingDispl, (int)activeMonster.Position.Y - 30, healthBarTexture[1].Width, healthBarTexture[1].Height);
+                    healthBarDesRect = new Rectangle((int)activeMonster.Position.X + healthBarDrawingDispl + 2, healthBarYPosition, (int)(activeMonster.Health * healthDrawingFactor), healthBarTexture[0].Height);
+                    healthBarFrameDesRect = new Rectangle((int)activeMonster.Position.X + healthBarDrawingDispl, healthBarFrameYPosition, healthBarTexture[1].Width, healthBarTexture[1].Height);
                 }
                 spriteBatch.Begin();
                 spriteBatch.Draw(drawTexture, destinationRectangle, sourceRectangle, Color.White);
