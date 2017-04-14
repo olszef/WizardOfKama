@@ -45,7 +45,7 @@ namespace TheWizardOfKama
             oldState = MonsterState.Idle;
             currentFrame = idleStartFrame;
             health = 110;
-            attackPower = 15;
+            attackPower = 18;
             experienceForPlayer = 3000;
         }
 

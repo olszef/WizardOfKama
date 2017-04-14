@@ -99,11 +99,11 @@ namespace TheWizardOfKama
             this.spellTexture = spellTexture;
             this.monsterEffTextures = monsterEffTextures;
             this.healthBarTexture = healthBarTexture;
-            monsterNumber = random.Next(0,0);
+            monsterNumber = random.Next(2,6);
             this.monsterTextures = new Texture2D[monsterNumber];
             for (int i = 0; i < monsterNumber; i++)
             {
-                switch (random.Next(0,1))
+                switch (random.Next(3))
                 {
                     case 0:
                         monsterList.Add(new Zombie());
@@ -252,7 +252,7 @@ namespace TheWizardOfKama
                 healthBarDrawingDispl = 400;
             }
 
-            drawTexture = monsterTextures[monsterNumber - 1];
+            drawTexture = monsterTextures[monsterList.Count - 1];
             monTextureWidth = drawTexture.Width / monTextureColumns;
             monTextureHeight = drawTexture.Height / monTextureRows;
         }

@@ -18,19 +18,23 @@ namespace TheWizardOfKama
         SpriteFont spriteFontNormal;
         const int screenWidth = 1600;
         const int screenHeight = 900;
+
         GameScreen activeScreen;
         MenuScreen menuScreen;
         ActionScreen actionScreen;
         EndScreen endScreen;
-        GameStats gameStats = new GameStats();
+        GameStats endGameStats = new GameStats();
         List<GameScreen> gameScreens;
+
         KeyboardState keyboardState;
         KeyboardState oldKeyboardState;
+        bool isGameLost = false;
         bool paused = false;
         bool exit = false;
-        Texture2D pauseDarkening;
-        string pauseDarkening_file;
-        bool isGameLost = false;
+        string pauseDarkening_filepath;
+        Texture2D pauseDarkeningTexture;
+
+
         Vector2 textSize;
         string gameOverTitle = "GAME OVER";
         string gameOverExitInstructions = "Sorry, You lost... Please Click 'Esc' to end the game.";
@@ -56,7 +60,7 @@ namespace TheWizardOfKama
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            pauseDarkening_file = "backgrounds/pauseDarkening";
+            pauseDarkening_filepath = "backgrounds/pauseDarkening";
 
             base.Initialize();
         }
@@ -70,10 +74,9 @@ namespace TheWizardOfKama
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
             spriteFontSmall = Content.Load<SpriteFont>("GameText24");
             spriteFontNormal = Content.Load<SpriteFont>("GameText36");
-            pauseDarkening = Content.Load<Texture2D>(pauseDarkening_file);
+            pauseDarkeningTexture = Content.Load<Texture2D>(pauseDarkening_filepath);
             menuScreen = new MenuScreen(this, Content, spriteBatch, "menuScreen");
             actionScreen = new ActionScreen(this, Content, spriteBatch, "actionScreen");
             endScreen = new EndScreen(this, Content, spriteBatch, "endScreen");
@@ -104,16 +107,12 @@ namespace TheWizardOfKama
         protected override void Update(GameTime gameTime)
         {
             keyboardState = Keyboard.GetState();
-            /*if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();*/
 
-            // TODO: Add your update logic here
             switch (activeScreen.Name)
             {
                 case "menuScreen":
                     if (CheckKey(Keys.Enter))
                     {
-                        //****** cały switch do klasy MenuScreen?
                         switch (menuScreen.GetActiveItemName())
                         {
                             case "Main Menu":
@@ -159,12 +158,12 @@ namespace TheWizardOfKama
                     break;
                 case "actionScreen":
                     checkPauseKeys(keyboardState);
-                    if ((!paused  || gameStats.IsEndGame) && !exit)
+                    if ((!paused  || endGameStats.IsEndGame) && !exit)
                     {
-                        gameStats = activeScreen.Update(gameTime);
-                        if (gameStats.IsEndGame)
+                        endGameStats = activeScreen.Update(gameTime);
+                        if (endGameStats.IsEndGame)
                         {
-                            if (gameStats.IsWon)
+                            if (endGameStats.IsWon)
                             {
                                 beforeWinScreenTimer += gameTime.ElapsedGameTime.Milliseconds;
                                 if(beforeWinScreenTimer >= timeToShowWinScreen)
@@ -172,7 +171,7 @@ namespace TheWizardOfKama
                                     activeScreen.Hide();
                                     activeScreen = endScreen;
                                     activeScreen.Show();
-                                    endScreen.LoadGameStats(gameStats);                                   
+                                    endScreen.LoadGameStats(endGameStats);                                   
                                 }
                             }
                             else
@@ -217,6 +216,11 @@ namespace TheWizardOfKama
             base.Update(gameTime);
         }
 
+        private void RecognizeActiveMenuComponent()
+        {
+
+        }
+
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
@@ -239,7 +243,7 @@ namespace TheWizardOfKama
                         if (paused || exit)
                         {
                             {
-                                spriteBatch.Draw(pauseDarkening, new Rectangle(0, 0, screenWidth, screenHeight), Color.White);
+                                spriteBatch.Draw(pauseDarkeningTexture, new Rectangle(0, 0, screenWidth, screenHeight), Color.White);
                                 if (exit)
                                     spriteBatch.DrawString(spriteFontSmall, "Do you really want to exit the game? Click (Y)es or (N)o ...", new Vector2(screenWidth / 2 - 400, screenHeight / 2), Color.GhostWhite);
                                 else
@@ -249,7 +253,7 @@ namespace TheWizardOfKama
                     }
                     else
                     {
-                        spriteBatch.Draw(pauseDarkening, new Rectangle(0, 0, screenWidth, screenHeight), Color.White);
+                        spriteBatch.Draw(pauseDarkeningTexture, new Rectangle(0, 0, screenWidth, screenHeight), Color.White);
                         textSize = spriteFontNormal.MeasureString(gameOverTitle);
                         spriteBatch.DrawString(spriteFontNormal, gameOverTitle, new Vector2((screenWidth - textSize.X) / 2, 400), Color.Red);
                         textSize = spriteFontSmall.MeasureString(gameOverExitInstructions);

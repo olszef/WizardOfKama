@@ -94,7 +94,7 @@ namespace TheWizardOfKama
         int experience = 0;
         const int expToNextLvl = 1000;
         int baseMana = 100;
-        const int baseHealth = 1000;
+        const int baseHealth = 100;
         bool noMana = false;
         bool specialAbilityLeft = true;
         bool isWizardDead = false;
@@ -125,7 +125,7 @@ namespace TheWizardOfKama
             spellParams = new Dictionary<string, SpellParam>
             {
                 {"lighting", new SpellParam(5, 8) },
-                {"water", new SpellParam(7, 50) },
+                {"water", new SpellParam(7, 9) },
                 {"gravity", new SpellParam(3, 7) },
                 {"shield", new SpellParam(20, 0) },
                 {"special", new SpellParam(50, 100) },
@@ -564,15 +564,16 @@ namespace TheWizardOfKama
 
         public bool GainExperience(int expPoints)
         {
+            bool isLvlUp = false;
             experience += expPoints;
-            if (experience >= level * expToNextLvl)
+            while (experience >= level * expToNextLvl)
             {
                 level += 1;
                 LevelUp();
-                return true;
+                isLvlUp = true;
             }
-            else
-                return false;
+
+            return isLvlUp;
         }
 
         private void LevelUp()
@@ -613,9 +614,6 @@ namespace TheWizardOfKama
                     specialAbilityLeft = true;
                     break;
             }
-
-
-
         }
 
         public void RelocateWizard()
