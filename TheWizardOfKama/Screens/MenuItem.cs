@@ -14,10 +14,11 @@ namespace TheWizardOfKama
     class MenuItem : MenuComponent
     {
         float animationTimer = 0;
-        const float blinkPerFrame = 500;
+        const float blinkPerMiliseconds = 500;
 
-        public MenuItem(Game game, ContentManager content, SpriteBatch spriteBatch, string imagePath, string name) : base(game, content, spriteBatch, imagePath, name)
+        public MenuItem(Game game, ContentManager content, SpriteBatch spriteBatch, string imagePath, MenuItemTypes componentType) : base(game, content, spriteBatch, imagePath, componentType)
         {
+            this.name = componentType.ToString();
             textItem = "Return to Main Menu";
             itemColor = normalColor;
             itemSize = spriteFontNormal.MeasureString(textItem);
@@ -27,9 +28,8 @@ namespace TheWizardOfKama
         {
             base.Update(gameTime);
 
-            // text blinkig
             animationTimer += gameTime.ElapsedGameTime.Milliseconds;
-            if (animationTimer >= blinkPerFrame)
+            if (animationTimer >= blinkPerMiliseconds)
             {
                 animationTimer = 0;
                 if (itemColor == normalColor)
@@ -43,9 +43,7 @@ namespace TheWizardOfKama
         {
             base.Draw(gameTime);
 
-            //textSize = spriteFontBig.MeasureString(name);
             spriteBatch.Begin();
-            //spriteBatch.DrawString(spriteFontBig, name, new Vector2((screenWidth - textSize.X) / 2, 100), Color.Gold);
             spriteBatch.DrawString(spriteFontNormal, textItem, new Vector2((screenWidth - itemSize.X) / 2, screenHeight - 100), itemColor);
             spriteBatch.End();
         }

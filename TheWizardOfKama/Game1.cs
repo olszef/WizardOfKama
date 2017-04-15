@@ -23,17 +23,17 @@ namespace TheWizardOfKama
         MenuScreen menuScreen;
         ActionScreen actionScreen;
         EndScreen endScreen;
-        GameStats endGameStats = new GameStats();
         List<GameScreen> gameScreens;
+        GameStats endGameStats = new GameStats();
 
         KeyboardState keyboardState;
         KeyboardState oldKeyboardState;
+
         bool isGameLost = false;
-        bool paused = false;
-        bool exit = false;
+        bool pauseRequest = false;
+        bool exitRequest = false;
         string pauseDarkening_filepath;
         Texture2D pauseDarkeningTexture;
-
 
         Vector2 textSize;
         string gameOverTitle = "GAME OVER";
@@ -60,7 +60,7 @@ namespace TheWizardOfKama
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            pauseDarkening_filepath = "backgrounds/pauseDarkening";
+            pauseDarkening_filepath = "backgrounds/PauseDarkening";
 
             base.Initialize();
         }
@@ -77,9 +77,9 @@ namespace TheWizardOfKama
             spriteFontSmall = Content.Load<SpriteFont>("GameText24");
             spriteFontNormal = Content.Load<SpriteFont>("GameText36");
             pauseDarkeningTexture = Content.Load<Texture2D>(pauseDarkening_filepath);
-            menuScreen = new MenuScreen(this, Content, spriteBatch, "menuScreen");
-            actionScreen = new ActionScreen(this, Content, spriteBatch, "actionScreen");
-            endScreen = new EndScreen(this, Content, spriteBatch, "endScreen");
+            menuScreen = new MenuScreen(this, Content, spriteBatch, ScreenTypes.MenuScreen);
+            actionScreen = new ActionScreen(this, Content, spriteBatch, ScreenTypes.ActionScreen);
+            endScreen = new EndScreen(this, Content, spriteBatch, ScreenTypes.EndScreen);
             gameScreens = new List<GameScreen>
             {
                 menuScreen,
@@ -108,117 +108,154 @@ namespace TheWizardOfKama
         {
             keyboardState = Keyboard.GetState();
 
-            switch (activeScreen.Name)
+            switch (activeScreen.ScreenType)
             {
-                case "menuScreen":
+                case ScreenTypes.MenuScreen:
                     if (CheckKey(Keys.Enter))
                     {
-                        switch (menuScreen.GetActiveItemName())
-                        {
-                            case "Main Menu":
-                                switch (menuScreen.GetMenuSelectedItem())
-                                {
-                                    case 0:
-                                        activeScreen.Hide();
-                                        activeScreen = actionScreen;
-                                        activeScreen.Show();
-                                        break;
-                                    case 1:
-                                        //Show Info and instructions
-                                        menuScreen.ShowMenuComponent(1);
-                                        break;
-                                    case 2:
-                                        //Show Credits
-                                        menuScreen.ShowMenuComponent(2);
-                                        break;
-                                    case 3:
-                                        //Show Credits
-                                        menuScreen.ShowMenuComponent(3);
-                                        break;
-                                    case 4:
-                                        Exit();
-                                        break;
-                                }
-                                break;
-                            case "Instructions":
-                                //Back to Main menu
-                                menuScreen.ShowMenuComponent(0);
-                                break;
-                            case "Controls":
-                                //Back to Main menu
-                                menuScreen.ShowMenuComponent(0);
-                                break;
-                            case "Credits":
-                                //Back to Main menu
-                                menuScreen.ShowMenuComponent(0);
-                                break;
-                        }
+                        RecognizeActiveMenuComponent();
                     }
                     activeScreen.Update(gameTime);
                     break;
-                case "actionScreen":
-                    checkPauseKeys(keyboardState);
-                    if ((!paused  || endGameStats.IsEndGame) && !exit)
-                    {
-                        endGameStats = activeScreen.Update(gameTime);
-                        if (endGameStats.IsEndGame)
-                        {
-                            if (endGameStats.IsWon)
-                            {
-                                beforeWinScreenTimer += gameTime.ElapsedGameTime.Milliseconds;
-                                if(beforeWinScreenTimer >= timeToShowWinScreen)
-                                {
-                                    activeScreen.Hide();
-                                    activeScreen = endScreen;
-                                    activeScreen.Show();
-                                    endScreen.LoadGameStats(endGameStats);                                   
-                                }
-                            }
-                            else
-                            {
-                                isGameLost = true;
-                                if (CheckKey(Keys.R))
-                                {
-                                    Restart.RestartGame = true;
-                                    Exit();
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (exit)
-                        {
-                            if (isGameLost)
-                                Exit();
-                            else
-                            {
-                                if (CheckKey(Keys.Y))
-                                    Exit();
-                                else if (CheckKey(Keys.N))
-                                    exit = false;
-                            }
-                        }
-                    }
+                case ScreenTypes.ActionScreen:
+                    CheckPauseKeys(keyboardState);
+                    ControlGameAndUserAction(gameTime);
                     break;
-                case "endScreen":
+                case ScreenTypes.EndScreen:
                     activeScreen.Update(gameTime);
-                    if (CheckKey(Keys.Escape))
-                        Exit();
-                    else if (CheckKey(Keys.R))
-                    {
-                        Restart.RestartGame = true;
-                        Exit();
-                    }
+                    ExitOrRestartGame();
                     break;
             }
+
             oldKeyboardState = keyboardState;
             base.Update(gameTime);
         }
 
+        private bool CheckKey(Keys theKey)
+        {
+            return keyboardState.IsKeyUp(theKey) &&
+                oldKeyboardState.IsKeyDown(theKey);
+        }
+
         private void RecognizeActiveMenuComponent()
         {
+            switch (menuScreen.GetActiveItem())
+            {
+                case MenuItemTypes.MainMenu:
+                    EnterSelectedItem();
+                    break;
+                case MenuItemTypes.Instructions:
+                case MenuItemTypes.Controls:
+                case MenuItemTypes.Credits:
+                    menuScreen.ShowMenuComponent(MenuItemTypes.MainMenu);
+                    break;
+            }
+        }
 
+        private void EnterSelectedItem()
+        {
+            switch (menuScreen.GetMenuSelectedItem())
+            {
+                case MenuItemTypes.StartGame:
+                    activeScreen.Hide();
+                    activeScreen = actionScreen;
+                    activeScreen.Show();
+                    break;
+                case MenuItemTypes.Instructions:
+                    menuScreen.ShowMenuComponent(MenuItemTypes.Instructions);
+                    break;
+                case MenuItemTypes.Controls:
+                    menuScreen.ShowMenuComponent(MenuItemTypes.Controls);
+                    break;
+                case MenuItemTypes.Credits:
+                    menuScreen.ShowMenuComponent(MenuItemTypes.Credits);
+                    break;
+                case MenuItemTypes.Exit:
+                    Exit();
+                    break;
+            }
+        }
+
+        private void ControlGameAndUserAction(GameTime gameTime)
+        {
+            if ((!pauseRequest || endGameStats.IsEndGame) && !exitRequest)
+            {
+                endGameStats = activeScreen.Update(gameTime);
+                if (endGameStats.IsEndGame)
+                {
+                    PickEndScreen(gameTime);
+                }
+            }
+            else
+            {
+                if (exitRequest)
+                {
+                    CloseWindowOrRequestAction();
+                }
+            }
+        }
+
+        private void PickEndScreen(GameTime gameTime)
+        {
+            if (endGameStats.IsWon)
+            {
+                ShowVictoryEndScreen(gameTime);
+            }
+            else
+            {
+                SetLosingAndCheckForRestart();
+            }
+        }
+
+        private void ShowVictoryEndScreen(GameTime gameTime)
+        {
+            beforeWinScreenTimer += gameTime.ElapsedGameTime.Milliseconds;
+            if (beforeWinScreenTimer >= timeToShowWinScreen)
+            {
+                activeScreen.Hide();
+                activeScreen = endScreen;
+                activeScreen.Show();
+                endScreen.LoadGameStats(endGameStats);
+            }
+        }
+
+        private void SetLosingAndCheckForRestart()
+        {
+            isGameLost = true;
+            if (CheckKey(Keys.R))
+            {
+                Restart.RestartGame = true;
+                Exit();
+            }
+        }
+
+        private void CloseWindowOrRequestAction()
+        {
+            if (endGameStats.IsEndGame)
+                Exit();
+            else
+            {
+                WaitForUserAction();
+            }
+        }
+
+        private void WaitForUserAction()
+        {
+            if (CheckKey(Keys.Y))
+                Exit();
+            else if (CheckKey(Keys.N))
+                exitRequest = false;
+        }
+
+        private void ExitOrRestartGame()
+        {
+            if (CheckKey(Keys.Escape))
+                Exit();
+            else if (CheckKey(Keys.R))
+            {
+                Restart.RestartGame = true;
+                Exit();
+            }
         }
 
         /// <summary>
@@ -232,7 +269,7 @@ namespace TheWizardOfKama
             // TODO: Add your drawing code here
             foreach (GameScreen screen in gameScreens)
             {
-                if (screen.Enabled)
+                if (screen.IsEnabled)
                 {
                     screen.Draw(gameTime);
 
@@ -240,11 +277,11 @@ namespace TheWizardOfKama
                     spriteBatch.Begin();
                     if (!isGameLost)
                     {
-                        if (paused || exit)
+                        if (pauseRequest || exitRequest)
                         {
                             {
                                 spriteBatch.Draw(pauseDarkeningTexture, new Rectangle(0, 0, screenWidth, screenHeight), Color.White);
-                                if (exit)
+                                if (exitRequest)
                                     spriteBatch.DrawString(spriteFontSmall, "Do you really want to exit the game? Click (Y)es or (N)o ...", new Vector2(screenWidth / 2 - 400, screenHeight / 2), Color.GhostWhite);
                                 else
                                     spriteBatch.DrawString(spriteFontSmall, "The game is paused. Click 'P' button to resume...", new Vector2(screenWidth / 2 - 300, screenHeight / 2), Color.GhostWhite);
@@ -267,28 +304,22 @@ namespace TheWizardOfKama
             base.Draw(gameTime);
         }
 
-        bool CheckKey(Keys theKey)
-        {
-            return keyboardState.IsKeyUp(theKey) &&
-                oldKeyboardState.IsKeyDown(theKey);
-        }
-
-        private void checkPauseKeys(KeyboardState keyboardState)
+        private void CheckPauseKeys(KeyboardState keyboardState)
         {
             // If key was not down before, but is down now, we toggle the
             // pause setting
             if (CheckKey(Keys.P))
             {
-                if (!paused)
-                    paused = true;
+                if (!pauseRequest)
+                    pauseRequest = true;
                 else
-                    paused = false;
+                    pauseRequest = false;
             }
 
             if (CheckKey(Keys.Escape))
             {
-                if (!exit)
-                    exit = true;
+                if (!exitRequest)
+                    exitRequest = true;
             }
         }
     }

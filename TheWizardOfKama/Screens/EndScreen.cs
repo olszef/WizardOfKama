@@ -21,7 +21,7 @@ namespace TheWizardOfKama
         string monstersKilledStat;
         string playedTimeStat;
 
-        public EndScreen(Game game, ContentManager content, SpriteBatch spriteBatch, string name) : base(game, content, spriteBatch, name)
+        public EndScreen(Game game, ContentManager content, SpriteBatch spriteBatch, ScreenTypes screenType) : base(game, content, spriteBatch, screenType)
         {
             Initalize();
             LoadContent();

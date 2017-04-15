@@ -68,7 +68,9 @@
     <Compile Include="Screens\MainMenu.cs" />
     <Compile Include="Screens\MenuComponent.cs" />
     <Compile Include="Screens\MenuItem.cs" />
+    <Compile Include="Screens\MenuItemTypes.cs" />
     <Compile Include="Screens\MenuScreen.cs" />
+    <Compile Include="Screens\ScreenTypes.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">
@@ -99,7 +101,7 @@
     <Content Include="Content\backgrounds\MainMenu.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\backgrounds\pauseDarkening.png">
+    <Content Include="Content\backgrounds\PauseDarkening.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\backgrounds\Windmill.png">
@@ -118,9 +120,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\character\gravity.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Content\character\kameha.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\character\LevelUpWaves.png">
@@ -144,13 +143,10 @@
     <Content Include="Content\monsters\BasicOrcMoves.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\monsters\birdy.png">
+    <Content Include="Content\monsters\Birdy.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\monsters\birdyExplosion.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Content\monsters\circle.png">
+    <Content Include="Content\monsters\BirdyExplosion.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\monsters\HealthBar.png">
@@ -159,28 +155,25 @@
     <Content Include="Content\monsters\HealthBarFrame.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\monsters\lander.png">
+    <Content Include="Content\monsters\Lander.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\monsters\landerAttack.png">
+    <Content Include="Content\monsters\LanderAttack.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\monsters\landerExplosion.png">
+    <Content Include="Content\monsters\LanderExplosion.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\monsters\OrcDeath.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\monsters\respawnAnim.png">
+    <Content Include="Content\monsters\RespawnAnim.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\monsters\zombie.png">
+    <Content Include="Content\monsters\Zombie.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\monsters\zombie2.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Content\monsters\zombieDeath.png">
+    <Content Include="Content\monsters\ZombieDeath.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\other\EndGate.png">

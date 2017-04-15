@@ -20,12 +20,12 @@ namespace TheWizardOfKama
         MenuItem credits;
         List<MenuComponent> menuComponents;
 
-        public MenuScreen(Game game, ContentManager content, SpriteBatch spriteBatch, string name) : base(game, content, spriteBatch, name)
+        public MenuScreen(Game game, ContentManager content, SpriteBatch spriteBatch, ScreenTypes screenType) : base(game, content, spriteBatch, screenType)
         {
-            mainMenu = new MainMenu(game, content, spriteBatch, "backgrounds/MainMenu", "Main Menu");
-            instructions = new MenuItem(game, content, spriteBatch, "backgrounds/InstructionsItem", "Instructions");
-            controls = new MenuItem(game, content, spriteBatch, "backgrounds/ControlsItem", "Controls");
-            credits = new MenuItem(game, content, spriteBatch, "backgrounds/CreditsItem", "Credits");
+            mainMenu = new MainMenu(game, content, spriteBatch, "backgrounds/MainMenu", MenuItemTypes.MainMenu);
+            instructions = new MenuItem(game, content, spriteBatch, "backgrounds/InstructionsItem", MenuItemTypes.Instructions);
+            controls = new MenuItem(game, content, spriteBatch, "backgrounds/ControlsItem", MenuItemTypes.Controls);
+            credits = new MenuItem(game, content, spriteBatch, "backgrounds/CreditsItem", MenuItemTypes.Credits);
             activeMenu = mainMenu;
             activeMenu.Show();
             menuComponents = new List<MenuComponent>
@@ -41,7 +41,7 @@ namespace TheWizardOfKama
         {
             foreach (MenuComponent component in menuComponents)
             {
-                if (component.Enabled)
+                if (component.IsEnabled)
                     component.Update(gameTime);
             }
 
@@ -53,27 +53,27 @@ namespace TheWizardOfKama
             base.Draw(gameTime);
             foreach (MenuComponent component in menuComponents)
             {
-                if (component.Enabled)
+                if (component.IsEnabled)
                 {
                     component.Draw(gameTime);
                 }
             }
         }
 
-        public string GetActiveItemName()
+        public MenuItemTypes GetActiveItem()
         {
-            return activeMenu.Name;
+            return activeMenu.ComponentType;
         }
 
-        public int GetMenuSelectedItem()
+        public MenuItemTypes GetMenuSelectedItem()
         {
-            return mainMenu.SelectedIndex;
+            return (MenuItemTypes)mainMenu.SelectedIndex;
         }
 
-        public void ShowMenuComponent(int itemToShow)
+        public void ShowMenuComponent(MenuItemTypes itemToShow)
         {
             activeMenu.Hide();
-            activeMenu = menuComponents[itemToShow];
+            activeMenu = menuComponents[(int)itemToShow];
             activeMenu.Show();
         }
     }

@@ -13,7 +13,9 @@ namespace TheWizardOfKama
 {
     class MenuComponent
     {
-        protected bool enabled;
+        protected bool isEnabled;
+        protected MenuItemTypes componentType;
+
         protected int lineSpacing;
         protected string name;
         protected string textItem;
@@ -33,7 +35,7 @@ namespace TheWizardOfKama
         protected SpriteFont spriteFontBig;
         protected SpriteFont spriteFontLarge;
         protected string imagePath;
-        protected Texture2D image;
+        protected Texture2D backgroundImage;
         protected Rectangle imageRectangle;
         protected ContentManager content;
         protected Game game;
@@ -44,19 +46,19 @@ namespace TheWizardOfKama
         protected float screenWidth = 0f;
         protected float screenHeight = 0f;
 
-        public bool Enabled
+        public bool IsEnabled
         {
-            get { return enabled; }
+            get { return isEnabled; }
         }
 
-        public string Name
+        public MenuItemTypes ComponentType
         {
-            get { return name; }
+            get { return componentType; }
         }
 
-        public MenuComponent(Game game, ContentManager content, SpriteBatch spriteBatch, string imagePath, string name)
+        public MenuComponent(Game game, ContentManager content, SpriteBatch spriteBatch, string imagePath, MenuItemTypes componentType)
         {
-            this.name = name;
+            this.componentType = componentType;
             this.spriteBatch = spriteBatch;
             this.content = content;
             this.game = game;
@@ -64,13 +66,13 @@ namespace TheWizardOfKama
             screenHeight = game.Window.ClientBounds.Height;
             this.imagePath = imagePath;
             LoadContent();
-            imageRectangle = new Rectangle(
-                0,
-                0,
-                (int)screenWidth,
-                (int)screenHeight);
+            imageRectangle = new Rectangle(0, 0, (int)screenWidth, (int)screenHeight);
             Hide();
+        }
 
+        public virtual void Update(GameTime gameTime)
+        {
+            keyboardState = Keyboard.GetState();
         }
 
         protected bool CheckKey(Keys theKey)
@@ -79,14 +81,9 @@ namespace TheWizardOfKama
                 oldKeyboardState.IsKeyDown(theKey);
         }
 
-        public virtual void Update(GameTime gameTime)
-        {
-            keyboardState = Keyboard.GetState();
-        }
-
         private void LoadContent()
         {
-            image = content.Load<Texture2D>(imagePath);
+            backgroundImage = content.Load<Texture2D>(imagePath);
             spriteFontNormal = content.Load<SpriteFont>("GameText36");
             spriteFontBig = content.Load<SpriteFont>("GameText56");
             spriteFontLarge = content.Load<SpriteFont>("GameText70");
@@ -95,7 +92,7 @@ namespace TheWizardOfKama
         public virtual void Draw(GameTime gameTime)
         {
             spriteBatch.Begin();
-            spriteBatch.Draw(image, imageRectangle, Color.White);
+            spriteBatch.Draw(backgroundImage, imageRectangle, Color.White);
             // Draw game title
             textSize = spriteFontLarge.MeasureString(titleText);
             spriteBatch.DrawString(spriteFontLarge, titleText, new Vector2(((float)screenWidth - textSize.X) / 2, 30), Color.Black);
@@ -109,12 +106,12 @@ namespace TheWizardOfKama
 
         public virtual void Show()
         {
-            this.enabled = true;
+            this.isEnabled = true;
         }
 
         public virtual void Hide()
         {
-            this.enabled = false;
+            this.isEnabled = false;
         }
     }
 }

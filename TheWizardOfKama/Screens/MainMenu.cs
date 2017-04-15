@@ -29,8 +29,9 @@ namespace TheWizardOfKama
             }
         }
 
-        public MainMenu(Game game, ContentManager content, SpriteBatch spriteBatch, string imagePath, string name) : base(game, content, spriteBatch, imagePath, name)
+        public MainMenu(Game game, ContentManager content, SpriteBatch spriteBatch, string imagePath, MenuItemTypes componentType) : base(game, content, spriteBatch, imagePath, componentType)
         {
+            this.name = "Main Menu";
             menuItems = new string[]
             {
                 "Start new game",

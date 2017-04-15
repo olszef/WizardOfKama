@@ -18,41 +18,36 @@ namespace TheWizardOfKama
         protected SpriteFont spriteFontBig;
         protected SpriteFont spriteFontLarge;
         protected Vector2 textSize;
-        protected string name;
-        protected bool enabled;
+
+        protected bool isEnabled;
+        protected ScreenTypes screenType;
+
 		protected Game game;
 		protected SpriteBatch spriteBatch;
 		protected ContentManager content;
-		protected string imageName; 
-		protected Texture2D image;
-		protected Rectangle imageRectangle;
         protected int screenWidth;
         protected int screenHeight;
         protected GameStats endGameStats = new GameStats();
 
-        public bool Enabled
+        public bool IsEnabled
         {
-            get { return enabled; }
+            get { return isEnabled; }
         }
 
-        public string Name
+        public ScreenTypes ScreenType
         {
-            get { return name; }
+            get { return screenType; }
         }
 
-        public GameScreen(Game game, ContentManager content, SpriteBatch spriteBatch, string name)
+        public GameScreen(Game game, ContentManager content, SpriteBatch spriteBatch, ScreenTypes screenType)
 		{
 			this.game = game;
 			this.content = content;
 			this.spriteBatch = spriteBatch;
-            this.name = name;
+            this.screenType = screenType;
             screenWidth = game.Window.ClientBounds.Width;
             screenHeight = game.Window.ClientBounds.Height;
             Hide();
-		}
-
-		public virtual void Draw(GameTime gameTime)
-		{
 		}
 
         public virtual GameStats Update(GameTime gameTime)
@@ -60,14 +55,18 @@ namespace TheWizardOfKama
             return endGameStats;
         }
 
+        public virtual void Draw(GameTime gameTime)
+		{
+		}
+
         public virtual void Show()
 		{
-			this.enabled = true;
+			this.isEnabled = true;
 		}
 
 		public virtual void Hide()
 		{
-			this.enabled = false;
+			this.isEnabled = false;
 		}
 	}
 }
