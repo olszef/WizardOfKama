@@ -41,11 +41,6 @@ namespace TheWizardOfKama
         private static float FindClosestRecPoint(float circleCenter, float recMin, float recMax)
         {
             return circleCenter < recMin ? recMin : circleCenter > recMax ? recMax : circleCenter;
-            /*
-            if(f < min){ return min;}
-            if(f > max){ return max;}
-            return f;
-            */
         }
     }
 }

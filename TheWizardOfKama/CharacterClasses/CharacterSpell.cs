@@ -56,6 +56,20 @@ namespace TheWizardOfKama
                 currentFrame++;
             }
 
+            SetCollisionShape();
+
+            if (currentFrame > endFrame && endOfLife == false)
+                currentFrame = startFrame;
+            else if (currentFrame > endFrame && endOfLife == true)
+                return true;
+
+            return false;
+        }
+
+        //private void 
+
+        private void SetCollisionShape()
+        {
             if (endOfLife)
             {
                 if (name == "lighting" || name == "special")
@@ -68,17 +82,10 @@ namespace TheWizardOfKama
                 if (name == "lighting")
                     figure = new Rectangle((int)position.X, (int)position.Y, width, height);
                 else if (name == "special")
-                    figure = new Rectangle((int)position.X + width/4, (int)position.Y + height/4, width - width/2, height - height/2);
+                    figure = new Rectangle((int)position.X + width / 4, (int)position.Y + height / 4, width - width / 2, height - height / 2);
                 else
                     figure = new Circle(new Vector2((position.X + (width / 2)), (position.Y + (height / 2))), width / 2);
             }
-
-            if (currentFrame > endFrame && endOfLife == false)
-                currentFrame = startFrame;
-            else if (currentFrame > endFrame && endOfLife == true)
-                return true;
-
-            return false;
         }
     }
 }
